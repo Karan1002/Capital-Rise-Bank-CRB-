@@ -120,45 +120,73 @@
     <script>
         window.onload = function () {
             try {
-                // ✅ NEW BACKEND KEYS (Not old localStorage!)
-                const latestRef = localStorage.getItem("latestBusinessLoanRef");
-                const latestData = localStorage.getItem("latestBusinessLoanData");
+                // ✅ SERVER-GENERATED refNo (standard key)
+                const savedRef = localStorage.getItem('submissionRefNo');
+                const formType = localStorage.getItem('submissionType') || 'Business Loan';
 
-                console.log('🔍 Found Ref:', latestRef);
-                console.log('🔍 Found Data:', latestData);
+                const refContainer = document.getElementById("refContainer");
 
-                if (latestRef) {
-                    document.getElementById("refContainer").innerHTML = `
-                <div class="ref-box">
-                    Reference Number: <strong>${latestRef}</strong><br>
-                    <small>Application submitted successfully!</small>
-                </div>
-            `;
-                } else if (latestData) {
-                    const data = JSON.parse(latestData);
-                    document.getElementById("refContainer").innerHTML = `
-                <div class="ref-box">
-                    Reference Number: <strong>${data.refNo}</strong><br>
-                    <small>Business Loan: ${data.businessName}</small>
-                </div>
-            `;
+                if (savedRef) {
+                    // ✅ SERVER refNo show करो (LN123456)
+                    refContainer.innerHTML = `
+                    <div class="ref-box" style="background: #e8f5e8; padding: 20px; border-radius: 10px; text-align: center;">
+                        <h3>✅ ${formType} Submitted Successfully!</h3>
+                        <div style="font-size: 1.5em; color: #28a745; font-weight: bold; margin: 10px 0;">
+                            Reference Number: <strong>${savedRef}</strong>
+                        </div>
+                        <p style="color: #666;">
+                            Save this reference number for tracking your application.
+                        </p>
+                        <button onclick="printReceipt()" style="background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">
+                            🖨️ Print Receipt
+                        </button>
+                    </div>
+                `;
+                    showToast(`✅ ${formType} Ref: ${savedRef}`);
                 } else {
-                    document.getElementById("refContainer").innerHTML = `
-                <div class="error">
-                    No recent application found. <a href="businessloan.html">Apply Again</a>
-                </div>
-            `;
+                    refContainer.innerHTML = `
+                    <div class="error" style="background: #f8d7da; color: #721c24; padding: 20px; border-radius: 10px; text-align: center;">
+                        <h3>⚠️ No Recent Application</h3>
+                        <p><a href="businessloan.html" style="color: #007bff;">Apply Again</a></p>
+                    </div>
+                `;
+                    showToast('No application found', 'error');
                 }
+
+                // ✅ Cleanup after 5 seconds
+                setTimeout(() => {
+                    localStorage.removeItem('submissionRefNo');
+                    localStorage.removeItem('submissionType');
+                }, 5000);
+
             } catch (error) {
                 console.error("Error loading reference:", error);
                 document.getElementById("refContainer").innerHTML = `
-            <div class="error">
-                Error loading details. <a href="businessloan.html">Try Again</a>
-            </div>
-        `;
+                <div class="error" style="background: #f8d7da; color: #721c24; padding: 20px; border-radius: 10px;">
+                    Error loading details. <a href="businessloan.html">Try Again</a>
+                </div>
+            `;
             }
         };
+
+        function printReceipt() {
+            window.print();
+        }
+
+        function showToast(msg, type = 'info') {
+            const toast = document.createElement('div');
+            toast.textContent = msg;
+            toast.style.cssText = `
+            position: fixed; top: 20px; right: 20px; padding: 15px 20px; 
+            background: ${type === 'error' ? '#dc3545' : '#28a745'}; 
+            color: white; border-radius: 8px; z-index: 9999; font-family: Arial; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        `;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 4000);
+        }
     </script>
+
 
 
 </body>

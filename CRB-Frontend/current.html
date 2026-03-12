@@ -630,11 +630,11 @@
     `;
         }
 
-        // 🔥 🔥 🔥 MAIN SUBMIT FUNCTION - MongoDB Backend Integration 🔥 🔥 🔥
+        // 🔥 MAIN SUBMIT FUNCTION - MongoDB Backend + SERVER REF NO
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            // ✅ 1. AGE VALIDATION (18+ only)
+            // ✅ 1. AGE VALIDATION (same)
             const dob = q('dob')?.value;
             if (dob) {
                 const dobDate = new Date(dob);
@@ -649,7 +649,7 @@
                 }
             }
 
-            // ✅ 2. REQUIRED FIELDS CHECK
+            // ✅ 2. REQUIRED FIELDS CHECK (same)
             const requiredFields = [
                 'fullName', 'fatherName', 'dob', 'personalPan',
                 'businessName', 'businessType', 'address', 'state',
@@ -666,7 +666,7 @@
                 }
             }
 
-            // ✅ 3. FORMAT VALIDATIONS
+            // ✅ 3. FORMAT VALIDATIONS (same)
             if (!/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/i.test(q('personalPan').value)) {
                 showToast('❌ Invalid PAN format');
                 q('personalPan').focus();
@@ -688,9 +688,9 @@
             submitBtn.textContent = '⏳ Submitting...';
 
             try {
-                // ✅ 5. COLLECT FORM DATA (Exact backend format)
+                // 🔥 ✅ 5. NO CLIENT REF NO - SERVER GENERATES ACCxxxxx!
                 const formData = {
-                    accountType: q('accountType')?.value || 'Current',
+                    name: q('fullName').value,
                     fullName: q('fullName').value,
                     fatherName: q('fatherName').value,
                     dob: q('dob').value,
@@ -707,44 +707,51 @@
                     district: q('district').value,
                     city: q('city').value,
                     pincode: q('pincode').value,
-                    contactPhone: normalizeDigits(q('contactPhone').value),
+                    phone: normalizeDigits(q('contactPhone').value),
+                    mobile: normalizeDigits(q('contactPhone').value),
                     contactEmail: q('contactEmail').value,
                     website: q('website')?.value || '',
                     authName: q('authName').value,
                     authDesignation: q('authDesignation').value,
                     authMobile: normalizeDigits(q('authMobile').value),
-                    authEmail: q('authEmail').value
+                    authEmail: q('authEmail').value,
+                    accountType: q('accountType')?.value || 'Current',
+                    type: q('accountType')?.value || 'Current'
+                    // ✅ NO refNo - server generates ACCxxxxx!
                 };
 
-                // ✅ 6. SEND TO MONGODB BACKEND
-                const response = await fetch('http://localhost:5000/api/accounts/open', {
+                console.log('📤 Current Account Data (NO refNo):', formData);
+
+                // ✅ 6. SEND TO EXISTING ACCOUNTS ENDPOINT
+                const response = await fetch('http://localhost:5000/api/accounts/apply', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(formData)
                 });
 
                 const result = await response.json();
 
                 if (response.ok && result.success) {
-                    // ✅ 7. SUCCESS - Save Reference & Redirect
-                    localStorage.setItem("latestCurrentRef", result.refNo);
-                    showToast(`🎉 Success! Reference: ${result.refNo}`);
+                    // ✅ 7. SERVER-GENERATED REF NO SAVE!
+                    const serverRefNo = result.account.refNo || result.account.ref || result.account.referenceNo;
+
+                    localStorage.setItem('submissionRefNo', serverRefNo);
+                    localStorage.setItem('submissionType', formData.accountType || 'Current Account');
+
+                    showToast(`🎉 SUCCESS! Ref: ${serverRefNo}`);
 
                     setTimeout(() => {
                         window.location.href = formData.accountType === 'Savings' ?
                             "savingsub.html" : "currentsub.html";
                     }, 1500);
                 } else {
-                    showToast(`❌ Error: ${result.error || 'Submission failed'}`);
+                    showToast(`❌ Error: ${result.message || 'Submission failed'}`);
                 }
 
             } catch (error) {
                 console.error('❌ Network Error:', error);
                 showToast('❌ Server Error! Is backend running on localhost:5000?');
             } finally {
-                // ✅ 8. RESET BUTTON
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Submit Application';
             }

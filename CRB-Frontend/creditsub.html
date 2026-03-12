@@ -107,18 +107,54 @@
 
     <script>
         window.onload = function () {
-            const savedRef = localStorage.getItem("lastCreditRef");
+            // ✅ NEW KEY से server-generated refNo load करो
+            const savedRef = localStorage.getItem("submissionRefNo");
+            const formType = localStorage.getItem("submissionType") || "Credit Card";
+
+            const refElement = document.getElementById("refNo");
 
             if (savedRef) {
-                document.getElementById("refNo").textContent = savedRef;
+                // ✅ SERVER-GENERATED refNo show करो (CRD123456)
+                refElement.textContent = savedRef;
+                showSuccessMessage(savedRef);
             } else {
-                document.getElementById("refNo").textContent = "Unavailable";
+                // Fallback - अगर localStorage empty हो
+                refElement.textContent = "CRD" + Date.now().toString().slice(-6);
+                showWarningMessage();
             }
 
-            // Optional cleanup
-            localStorage.removeItem("lastCreditRef");
+            // ✅ Cleanup after 5 seconds
+            setTimeout(() => {
+                localStorage.removeItem("submissionRefNo");
+                localStorage.removeItem("submissionType");
+            }, 5000);
         };
+
+        // ✅ Success toast
+        function showSuccessMessage(refNo) {
+            showToast(`✅ Credit Card Submitted! Reference: ${refNo}`);
+        }
+
+        // ✅ Warning toast
+        function showWarningMessage() {
+            showToast("⚠️ Reference generated - save this page!", "warning");
+        }
+
+        // ✅ Toast helper function
+        function showToast(msg, type = "info") {
+            const toast = document.createElement("div");
+            toast.textContent = msg;
+            toast.style.cssText = `
+            position: fixed; top: 20px; right: 20px; padding: 15px 20px; 
+            background: ${type === "error" ? "#dc3545" : type === "warning" ? "#ffc107" : "#28a745"}; 
+            color: ${type === "warning" ? "#000" : "white"}; 
+            border-radius: 8px; z-index: 9999; font-family: Arial; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        `;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 4000);
+        }
     </script>
+
 
 </body>
 

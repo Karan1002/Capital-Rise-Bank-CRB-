@@ -133,25 +133,21 @@
             <button type="submit">Apply Now</button>
         </form>
     </div>
-
     <script>
-        // ✅ Credit Card Backend Integration + Limit Calculator + FIXED URL
+        // ✅ Credit Card Backend Integration + Limit Calculator + SERVER GENERATED REF NO
 
         const limitMultiplier = { Classic: 10, Gold: 15, Platinum: 20, Elite: 30 };
 
-        function generateRefNo() {
-            return "CC" + Math.floor(100000 + Math.random() * 900000);
-        }
-
         function q(id) { return document.getElementById(id); }
+
         function showToast(msg, type = 'info') {
             const toast = document.createElement('div');
             toast.textContent = msg;
             toast.style.cssText = `
-        position: fixed; top: 20px; right: 20px; padding: 15px; 
-        background: ${type === 'error' ? '#dc3545' : '#28a745'}; 
-        color: white; border-radius: 5px; z-index: 9999; font-family: Arial;
-    `;
+            position: fixed; top: 20px; right: 20px; padding: 15px; 
+            background: ${type === 'error' ? '#dc3545' : '#28a745'}; 
+            color: white; border-radius: 5px; z-index: 9999; font-family: Arial;
+        `;
             document.body.appendChild(toast);
             setTimeout(() => toast.remove(), 4000);
         }
@@ -169,7 +165,7 @@
             };
         }
 
-        // ✅ Backend Submit Handler
+        // ✅ Backend Submit Handler - SERVER GENERATED REF NO
         document.addEventListener('DOMContentLoaded', function () {
             const form = q("creditCardForm");
             if (!form) {
@@ -260,49 +256,48 @@
                 }
 
                 try {
-                    // ✅ 5. Backend Data
+                    // 🔥 ✅ NO CLIENT-SIDE refNo - SERVER WILL GENERATE!
                     const creditData = {
-                        refNo: generateRefNo(),
-                        accountNumber: accountNumber.value,
+                        name: fullname.value,
                         fullName: fullname.value,
-                        dob: dob.value,
                         email: email.value,
                         phone: phone.value,
+                        mobile: phone.value,
+                        cardType: cardTypeField.value + " Credit Card",  // Credit Card specify
+                        accountNumber: accountNumber.value,
                         address: address.value,
                         income: Number(incomeField.value),
-                        cardType: cardTypeField.value,
                         annualLimit: cardLimit.value.replace(/,/g, ''),
                         pan: pan.value.toUpperCase(),
-                        aadhaar: aadhaar.value || '',
-                        status: "pending",
-                        applicationType: "creditCard"  // ← YE IMPORTANT!
+                        aadhaar: aadhaar.value || ''
+                        // ✅ NO refNo - server generates CRDxxxxx!
                     };
 
-                    console.log('📤 Credit Card Data:', creditData);
+                    console.log('📤 Credit Card Data (NO refNo):', creditData);
 
-                    // 🔥 ✅ FIXED URL - SAME AS DEBIT CARD!
                     const response = await fetch('http://localhost:5000/api/cards/apply', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(creditData)
                     });
 
-                    const responseText = await response.text();
-                    console.log('🔍 Response:', response.status, responseText.substring(0, 300));
-
-                    if (!response.ok || responseText.includes('<!DOCTYPE') || responseText.includes('<html')) {
-                        throw new Error(`Server Error ${response.status}`);
-                    }
-
-                    const result = JSON.parse(responseText);
+                    const result = await response.json();
 
                     if (result.success) {
-                        localStorage.setItem("lastCreditRef", result.refNo || creditData.refNo);
-                        localStorage.setItem("lastCreditData", JSON.stringify(creditData));
-                        showToast(`🎉 SUCCESS! Ref: ${result.refNo || creditData.refNo}`, 'success');
-                        setTimeout(() => window.location.href = "creditsub.html", 2000);
+                        // ✅ SERVER-GENERATED refNo use करो!
+                        const serverRefNo = result.card.refNo || result.card.ref || result.card.referenceNo;
+
+                        // ✅ SAME refNo everywhere store करो
+                        localStorage.setItem('submissionRefNo', serverRefNo);
+                        localStorage.setItem('submissionType', 'Credit Card');
+
+                        showToast(`🎉 SUCCESS! Ref: ${serverRefNo}`, 'success');
+
+                        setTimeout(() => {
+                            window.location.href = "creditsub.html";
+                        }, 1500);
                     } else {
-                        throw new Error(result.error || 'Failed');
+                        throw new Error(result.message || 'Submission failed');
                     }
 
                 } catch (error) {
@@ -317,6 +312,7 @@
             };
         });
     </script>
+
 
 
 </body>

@@ -160,64 +160,87 @@
         document.getElementById('goldLoanForm').addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            const formData = {
-                refNo: 'GL' + Math.floor(100000 + Math.random() * 900000),
-                applicantName: document.getElementById('applicantName').value.trim(),
-                email: document.getElementById('email').value.trim(),
-                phone: document.getElementById('phone').value.trim(),
-                loanAmount: Number(document.getElementById('loanAmount').value),
-                loanType: 'Gold Loan',
-                goldWeight: Number(document.getElementById('goldWeight').value),
-                goldPurity: document.getElementById('goldPurity').value,
-                submittedOn: new Date().toISOString()  // ✅ Added for sorting
-            };
+            // ✅ Get form data
+            const applicantName = document.getElementById('applicantName').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const loanAmount = Number(document.getElementById('loanAmount').value);
+            const goldWeight = Number(document.getElementById('goldWeight').value);
+            const goldPurity = document.getElementById('goldPurity').value;
 
-            // Validation
-            if (!formData.applicantName || !formData.email || !formData.phone) {
+            // ✅ Validation
+            if (!applicantName || !email || !phone || !loanAmount || !goldWeight || !goldPurity) {
                 showToast('Please fill all required fields ⭐', 'error');
                 return;
             }
 
-            if (!/^[0-9]{10}$/.test(formData.phone)) {
+            if (!/^[0-9]{10}$/.test(phone)) {
                 showToast('Enter valid 10-digit phone number 📱', 'error');
+                return;
+            }
+
+            if (isNaN(loanAmount) || loanAmount <= 0) {
+                showToast('Enter valid loan amount 💰', 'error');
+                return;
+            }
+
+            if (isNaN(goldWeight) || goldWeight <= 0) {
+                showToast('Enter valid gold weight ⚖️', 'error');
                 return;
             }
 
             showToast('Submitting Gold Loan application...', 'loading');
 
             try {
-                const response = await fetch('http://localhost:5000/api/loans/apply', {
+                // 🔥 ✅ NO CLIENT refNo - SERVER GENERATES LNxxxxx!
+                const loanData = {
+                    applicantName: applicantName,
+                    name: applicantName,
+                    email: email,
+                    phoneNumber: phone,
+                    phone: phone,
+                    mobile: phone,
+                    carBrand: goldPurity + 'K - ' + goldWeight + 'g',  // Gold details in carBrand field
+                    amount: loanAmount,
+                    goldWeight: goldWeight,
+                    goldPurity: goldPurity,
+                    loanType: 'Gold Loan'
+                    // ✅ NO refNo - server will generate LNxxxxx!
+                };
+
+                console.log('📤 Gold Loan Data (NO refNo):', loanData);
+
+                const response = await fetch('http://localhost:5000/api/loans/car-apply', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(formData)
+                    body: JSON.stringify(loanData)
                 });
 
                 const result = await response.json();
 
                 if (response.ok && result.success) {
-                    // ✅ SAVE TO UNIFIED localStorage (for goldsubloan.html)
-                    let applications = JSON.parse(localStorage.getItem("lndbLoanApplications") || "[]");
-                    applications.push(formData);
-                    localStorage.setItem("lndbLoanApplications", JSON.stringify(applications));
+                    // ✅ SERVER-GENERATED refNo use करो!
+                    const serverRefNo = result.loan.refNo || result.loan.ref || result.loan.referenceNo;
 
-                    // ✅ Also save latest for backup
-                    localStorage.setItem("latestGoldLoan", JSON.stringify({ ...formData, refNo: result.refNo }));
+                    localStorage.setItem('submissionRefNo', serverRefNo);
+                    localStorage.setItem('submissionType', 'Gold Loan');
 
-                    showToast(`✅ Success! Ref: ${result.refNo}`);
+                    showToast(`✅ SUCCESS! Ref: ${serverRefNo}`);
                     document.getElementById('goldLoanForm').reset();
 
                     setTimeout(() => {
                         window.location.href = 'goldsubloan.html';
                     }, 1500);
                 } else {
-                    showToast(result.error || 'Submission failed ❌', 'error');
+                    showToast(result.message || 'Submission failed ❌', 'error');
                 }
             } catch (error) {
-                showToast('🔌 Backend server not running', 'error');
+                showToast('🔌 Backend server not running on localhost:5000', 'error');
                 console.error(error);
             }
         });
     </script>
+
 
 
 

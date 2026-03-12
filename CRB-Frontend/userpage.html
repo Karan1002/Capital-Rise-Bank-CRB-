@@ -468,9 +468,14 @@
 
     <script>
         function checkLogin() {
-            const user = localStorage.getItem("lndbCurrentUser");
-            if (user) {
-                document.getElementById("usernameDisplay").innerText = "Welcome, " + user;
+            const userData = localStorage.getItem("lndbCurrentUser");
+
+            if (userData) {
+                // ✅ JSON.parse karke name extract karo
+                const user = JSON.parse(userData);
+                const username = user.name.charAt(0).toUpperCase() + user.name.slice(1);
+
+                document.getElementById("usernameDisplay").innerText = "Welcome, " + username;
                 document.getElementById("usernameDisplay").style.display = "inline-block";
                 document.getElementById("logoutBtn").style.display = "inline-block";
                 document.getElementById("loginLink").style.display = "none";
@@ -495,6 +500,7 @@
 
         checkLogin();
     </script>
+
 
 
 </body>

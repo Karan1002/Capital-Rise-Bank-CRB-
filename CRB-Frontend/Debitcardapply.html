@@ -131,10 +131,7 @@
     </div>
 
     <script>
-        function generateRefNo() {
-            return "DC" + Math.floor(100000 + Math.random() * 900000);
-        }
-
+        // ✅ DOB restrictions (same)
         const dobInput = document.getElementById("dob");
         if (dobInput) {
             let today = new Date();
@@ -147,14 +144,15 @@
         }
 
         function q(id) { return document.getElementById(id); }
+
         function showToast(msg, type = 'info') {
             const toast = document.createElement('div');
             toast.textContent = msg;
             toast.style.cssText = `
-        position: fixed; top: 20px; right: 20px; padding: 15px; 
-        background: ${type === 'error' ? '#dc3545' : '#28a745'}; 
-        color: white; border-radius: 5px; z-index: 9999; font-family: Arial;
-    `;
+            position: fixed; top: 20px; right: 20px; padding: 15px; 
+            background: ${type === 'error' ? '#dc3545' : '#28a745'}; 
+            color: white; border-radius: 5px; z-index: 9999; font-family: Arial;
+        `;
             document.body.appendChild(toast);
             setTimeout(() => toast.remove(), 4000);
         }
@@ -208,47 +206,44 @@
                 }
 
                 try {
+                    // 🔥 ✅ NO CLIENT refNo - SERVER GENERATES CRDxxxxx!
                     const debitData = {
-                        refNo: generateRefNo(),
-                        accountNumber: account,
+                        name: fullname,
                         fullName: fullname,
-                        dob: dob,
                         email: email,
                         phone: phone,
+                        mobile: phone,
+                        type: cardType + " Debit Card",
+                        accountNumber: account,
                         address: address,
-                        cardType: cardType + " Debit Card",
-                        status: "pending",
-                        applicationType: "debitCard"
+                        dob: dob
+                        // ✅ NO refNo - server will generate CRDxxxxx!
                     };
 
-                    console.log('📤 Sending:', debitData);
+                    console.log('📤 Debit Card Data (NO refNo):', debitData);
 
-                    // 🔥 ✅ FIXED URL - /api/cards/apply
                     const response = await fetch('http://localhost:5000/api/cards/apply', {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
+                        headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(debitData)
                     });
 
-                    const responseText = await response.text();
-                    console.log('🔍 Response:', response.status, responseText.substring(0, 300));
-
-                    if (!response.ok || responseText.includes('<!DOCTYPE') || responseText.includes('<html')) {
-                        throw new Error(`Server Error ${response.status}`);
-                    }
-
-                    const result = JSON.parse(responseText);
+                    const result = await response.json();
 
                     if (result.success) {
-                        localStorage.setItem("latestDebitRef", result.refNo || debitData.refNo);
-                        showToast(`🎉 SUCCESS! Ref: ${result.refNo || debitData.refNo}`, 'success');
+                        // ✅ SERVER-GENERATED refNo use करो!
+                        const serverRefNo = result.card.refNo || result.card.ref || result.card.referenceNo;
+
+                        localStorage.setItem('submissionRefNo', serverRefNo);
+                        localStorage.setItem('submissionType', 'Debit Card');
+
+                        showToast(`🎉 SUCCESS! Ref: ${serverRefNo}`, 'success');
+
                         setTimeout(() => {
                             window.location.href = "subdebitcard.html";
-                        }, 2000);
+                        }, 1500);
                     } else {
-                        throw new Error(result.error || 'Failed');
+                        throw new Error(result.message || 'Submission failed');
                     }
 
                 } catch (error) {
@@ -263,6 +258,7 @@
             });
         });
     </script>
+
 
 
 

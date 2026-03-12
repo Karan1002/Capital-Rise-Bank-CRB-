@@ -365,151 +365,168 @@
         </form>
     </div>
 
-    <script>
-        // State-District Mapping (रखो जैसा है)
-        const stateDistrictMap = {
-            "Maharashtra": ["Mumbai", "Pune", "Satara", "Kolhapur", "Nashik"],
-            "Karnataka": ["Bengaluru", "Mysuru", "Mangaluru", "Udupi", "Belagavi"],
-            "Tamil Nadu": ["Chennai", "Madurai", "Erode", "Salem", "Coimbatore"],
-            "Uttar Pradesh": ["Lucknow", "Kanpur", "Ghaziabad", "Agra", "Varanasi"],
-            "West Bengal": ["Kolkata", "Howrah", "Darjeeling", "Nadia", "Asansol"],
-            "Gujarat": ["Ahmedabad", "Surat", "Rajkot", "Vadodara"],
-            "Madhya Pradesh": ["Bhopal", "Indore", "Ujjain", "Gwalior"],
-            "Rajasthan": ["Jaipur", "Jodhpur", "Ajmer", "Udaipur"],
-            "Bihar": ["Patna", "Gaya", "Bhagalpur", "Muzaffarpur"]
-        };
+  <script>
+    // State-District Mapping (रखो जैसा है)
+    const stateDistrictMap = {
+        "Maharashtra": ["Mumbai", "Pune", "Satara", "Kolhapur", "Nashik"],
+        "Karnataka": ["Bengaluru", "Mysuru", "Mangaluru", "Udupi", "Belagavi"],
+        "Tamil Nadu": ["Chennai", "Madurai", "Erode", "Salem", "Coimbatore"],
+        "Uttar Pradesh": ["Lucknow", "Kanpur", "Ghaziabad", "Agra", "Varanasi"],
+        "West Bengal": ["Kolkata", "Howrah", "Darjeeling", "Nadia", "Asansol"],
+        "Gujarat": ["Ahmedabad", "Surat", "Rajkot", "Vadodara"],
+        "Madhya Pradesh": ["Bhopal", "Indore", "Ujjain", "Gwalior"],
+        "Rajasthan": ["Jaipur", "Jodhpur", "Ajmer", "Udaipur"],
+        "Bihar": ["Patna", "Gaya", "Bhagalpur", "Muzaffarpur"]
+    };
 
-        // State change handler (रखो जैसा है)
-        document.getElementById('state').addEventListener('change', function () {
-            const districtSelect = document.getElementById('district');
-            districtSelect.innerHTML = '<option value="">--Select District--</option>';
-            if (stateDistrictMap[this.value]) {
-                stateDistrictMap[this.value].forEach(d => {
-                    let opt = document.createElement('option');
-                    opt.value = d;
-                    opt.text = d;
-                    districtSelect.appendChild(opt);
-                });
-            }
-        });
-
-        document.getElementById('district').addEventListener('change', function () {
-            if (this.value) document.getElementById('city').value = this.value;
-        });
-
-        // File upload handlers (रखो जैसा है)
-        const requiredFileInputs = ['photo', 'aadharFile', 'panFile', 'signatureFile', 'addressProofFile'];
-
-        const fileInputs = [
-            { id: 'photo', types: ['image/jpeg', 'image/png'], max: 2 * 1024 * 1024 },
-            { id: 'aadharFile', types: ['application/pdf', 'image/jpeg', 'image/png'], max: 2 * 1024 * 1024 },
-            { id: 'panFile', types: ['application/pdf', 'image/jpeg', 'image/png'], max: 2 * 1024 * 1024 },
-            { id: 'signatureFile', types: ['image/jpeg', 'image/png'], max: 2 * 1024 * 1024 },
-            { id: 'addressProofFile', types: ['application/pdf', 'image/jpeg', 'image/png'], max: 2 * 1024 * 1024 },
-        ];
-
-        fileInputs.forEach(f => {
-            const input = document.getElementById(f.id);
-            const nameSpan = document.getElementById(f.id + 'Name');
-            const errorSpan = document.getElementById(f.id + 'Error') || document.createElement('span');
-            const box = input.parentElement;
-
-            box.style.cursor = "pointer";
-            box.addEventListener('click', () => input.click());
-
-            input.addEventListener('change', function () {
-                if (input.files.length) {
-                    const file = input.files[0];
-                    if (!f.types.includes(file.type)) {
-                        errorSpan.textContent = 'Invalid file type';
-                        nameSpan.textContent = '';
-                        input.value = '';
-                        return;
-                    }
-                    if (file.size > f.max) {
-                        errorSpan.textContent = 'File must be under 2MB';
-                        nameSpan.textContent = '';
-                        input.value = '';
-                        return;
-                    }
-                    errorSpan.textContent = '';
-                    nameSpan.textContent = file.name;
-                }
+    // State change handler (रखो जैसा है)
+    document.getElementById('state').addEventListener('change', function () {
+        const districtSelect = document.getElementById('district');
+        districtSelect.innerHTML = '<option value="">--Select District--</option>';
+        if (stateDistrictMap[this.value]) {
+            stateDistrictMap[this.value].forEach(d => {
+                let opt = document.createElement('option');
+                opt.value = d;
+                opt.text = d;
+                districtSelect.appendChild(opt);
             });
-        });
+        }
+    });
 
-        // 🔥 MONGO DB Backend Integration (नया Updated Submit Handler)
-        document.getElementById('accountFormV2').addEventListener('submit', function (e) {
-            e.preventDefault();
-            const form = this;
+    document.getElementById('district').addEventListener('change', function () {
+        if (this.value) document.getElementById('city').value = this.value;
+    });
 
-            // Validation (सब वैसा ही रखा)
-            let isValid = form.checkValidity();
-            form.reportValidity();
+    // File upload handlers (रखो जैसा है)
+    const requiredFileInputs = ['photo', 'aadharFile', 'panFile', 'signatureFile', 'addressProofFile'];
 
-            requiredFileInputs.forEach(id => {
-                const input = document.getElementById(id);
-                if (!input.files.length) {
-                    isValid = false;
-                    input.parentElement.style.borderColor = "#d9534f";
-                }
-            });
+    const fileInputs = [
+        { id: 'photo', types: ['image/jpeg', 'image/png'], max: 2 * 1024 * 1024 },
+        { id: 'aadharFile', types: ['application/pdf', 'image/jpeg', 'image/png'], max: 2 * 1024 * 1024 },
+        { id: 'panFile', types: ['application/pdf', 'image/jpeg', 'image/png'], max: 2 * 1024 * 1024 },
+        { id: 'signatureFile', types: ['image/jpeg', 'image/png'], max: 2 * 1024 * 1024 },
+        { id: 'addressProofFile', types: ['application/pdf', 'image/jpeg', 'image/png'], max: 2 * 1024 * 1024 },
+    ];
 
-            // Age validation
-            const dobInput = document.getElementById('dob').value;
-            if (dobInput) {
-                const dob = new Date(dobInput);
-                const today = new Date();
-                let age = today.getFullYear() - dob.getFullYear();
-                const month = today.getMonth() - dob.getMonth();
-                if (month < 0 || (month === 0 && today.getDate() < dob.getDate())) age--;
-                if (age < 18) {
-                    isValid = false;
-                    alert("❌ Applicant must be 18+");
+    fileInputs.forEach(f => {
+        const input = document.getElementById(f.id);
+        const nameSpan = document.getElementById(f.id + 'Name');
+        const errorSpan = document.getElementById(f.id + 'Error') || document.createElement('span');
+        const box = input.parentElement;
+
+        box.style.cursor = "pointer";
+        box.addEventListener('click', () => input.click());
+
+        input.addEventListener('change', function () {
+            if (input.files.length) {
+                const file = input.files[0];
+                if (!f.types.includes(file.type)) {
+                    errorSpan.textContent = 'Invalid file type';
+                    nameSpan.textContent = '';
+                    input.value = '';
                     return;
                 }
-            }
-
-            if (!isValid) return;
-
-            // 🔥 Form data MongoDB को भेजो (localStorage हटाया!)
-            const formData = {};
-            [...form.elements].forEach(el => {
-                if (el.name && el.type !== 'file') {
-                    formData[el.name] = el.value;
+                if (file.size > f.max) {
+                    errorSpan.textContent = 'File must be under 2MB';
+                    nameSpan.textContent = '';
+                    input.value = '';
+                    return;
                 }
-            });
+                errorSpan.textContent = '';
+                nameSpan.textContent = file.name;
+            }
+        });
+    });
 
+    // 🔥 UPDATED Submit Handler - SERVER GENERATES REF NO!
+    document.getElementById('accountFormV2').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const form = this;
+
+        // Validation (सब वैसा ही रखा)
+        let isValid = form.checkValidity();
+        form.reportValidity();
+
+        requiredFileInputs.forEach(id => {
+            const input = document.getElementById(id);
+            if (!input.files.length) {
+                isValid = false;
+                input.parentElement.style.borderColor = "#d9534f";
+            }
+        });
+
+        // Age validation
+        const dobInput = document.getElementById('dob').value;
+        if (dobInput) {
+            const dob = new Date(dobInput);
+            const today = new Date();
+            let age = today.getFullYear() - dob.getFullYear();
+            const month = today.getMonth() - dob.getMonth();
+            if (month < 0 || (month === 0 && today.getDate() < dob.getDate())) age--;
+            if (age < 18) {
+                isValid = false;
+                alert("❌ Applicant must be 18+");
+                return;
+            }
+        }
+
+        if (!isValid) {
+            alert("❌ Please fill all required fields and upload documents");
+            return;
+        }
+
+        // 🔥 ✅ Form data MongoDB को भेजो (NO client refNo!)
+        const formData = {};
+        [...form.elements].forEach(el => {
+            if (el.name && el.type !== 'file') {
+                formData[el.name] = el.value;
+            }
+        });
+
+        console.log('📤 Savings Account Data (NO refNo):', formData);
+
+        try {
             // Backend API Call - LNDB MongoDB Backend
-            fetch('http://localhost:5000/api/accounts/open', {
+            const response = await fetch('http://localhost:5000/api/accounts/open', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(formData)
-            })
-                .then(response => {
-                    if (!response.ok) throw new Error('Network response was not ok');
-                    return response.json();
-                })
-                .then(data => {
-                    console.log('✅ Account Saved to MongoDB!', data);
-                    alert('🎉 Application Submitted Successfully!\nData saved to Admin Panel (MongoDB)');
+            });
 
-                    // Form reset + File previews clear
-                    form.reset();
-                    document.querySelectorAll('.file-name').forEach(el => el.textContent = '');
-                    document.querySelectorAll('.file-error').forEach(el => el.textContent = '');
+            if (!response.ok) throw new Error('Network response was not ok');
+            
+            const result = await response.json();
+            console.log('✅ Account Saved to MongoDB!', result);
 
-                    // Success page
+            if (result.success) {
+                // ✅ SERVER-GENERATED refNo use करो!
+                const serverRefNo = result.account.refNo || result.account.ref || result.account.referenceNo;
+                
+                localStorage.setItem('submissionRefNo', serverRefNo);
+                localStorage.setItem('submissionType', 'Savings Account');
+                
+                alert(`🎉 Application Submitted Successfully!\nReference: ${serverRefNo}\nData saved to Admin Panel (MongoDB)`);
+
+                // Form reset + File previews clear
+                form.reset();
+                document.querySelectorAll('.file-name').forEach(el => el.textContent = '');
+                document.querySelectorAll('.file-error').forEach(el => el.textContent = '');
+
+                // Success page with server refNo
+                setTimeout(() => {
                     window.location.href = "savingsub.html";
-                })
-                .catch(error => {
-                    console.error('❌ MongoDB Error:', error);
-                    alert('❌ Submission Failed!\nBackend चालू है? (http://localhost:5000)\nError: ' + error.message);
-                });
-        });
-    </script>
+                }, 1000);
+            } else {
+                alert('❌ Submission Failed: ' + (result.message || 'Unknown error'));
+            }
+        } catch (error) {
+            console.error('❌ MongoDB Error:', error);
+            alert('❌ Submission Failed!\nBackend चालू है? (http://localhost:5000)\nError: ' + error.message);
+        }
+    });
+</script>
 
 </body>
 

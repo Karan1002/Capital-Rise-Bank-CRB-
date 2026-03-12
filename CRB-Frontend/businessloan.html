@@ -151,21 +151,18 @@
     <div id="toast" class="toast"></div>
 
     <script>
-        // ✅ Business Loan Backend Integration - MongoDB + Toast UI
-
-        function generateRefNo() {
-            return "BL" + Math.floor(100000 + Math.random() * 900000);
-        }
+        // ✅ Business Loan Backend Integration - SERVER GENERATED REF NO
 
         function q(id) { return document.getElementById(id); }
+
         function showToast(msg, type = 'info') {
             const toast = document.createElement('div');
             toast.textContent = msg;
             toast.style.cssText = `
-        position: fixed; top: 20px; right: 20px; padding: 15px; 
-        background: ${type === 'error' ? '#dc3545' : '#28a745'}; 
-        color: white; border-radius: 5px; z-index: 9999; font-family: Arial;
-    `;
+            position: fixed; top: 20px; right: 20px; padding: 15px; 
+            background: ${type === 'error' ? '#dc3545' : '#28a745'}; 
+            color: white; border-radius: 5px; z-index: 9999; font-family: Arial;
+        `;
             document.body.appendChild(toast);
             setTimeout(() => toast.remove(), 4000);
         }
@@ -213,54 +210,47 @@
                 }
 
                 try {
-                    // ✅ 4. Backend data (MongoDB schema match)
+                    // 🔥 ✅ NO CLIENT refNo - SERVER GENERATES LNxxxxx!
                     const loanData = {
-                        refNo: generateRefNo(),  // BL847392
-                        ownerName: ownerName,
+                        applicantName: ownerName,
+                        name: ownerName,
                         businessName: businessName,
                         businessType: businessType,
                         email: email,
+                        phoneNumber: phone,
                         phone: phone,
-                        loanAmount: parseInt(loanAmount),
+                        mobile: phone,
+                        carBrand: businessName,  // Reuse for business name
+                        amount: parseInt(loanAmount),
                         loanType: 'Business Loan',
-                        status: 'pending',
-                        applicationType: 'businessLoan',  // Backend identifier
-                        submittedOn: new Date().toISOString(),
-                        businessDetails: {
-                            name: businessName,
-                            type: businessType
-                        }
+                        // ✅ NO refNo - server will generate LNxxxxx!
                     };
 
-                    console.log('📤 Business Loan Data:', loanData);
+                    console.log('📤 Business Loan Data (NO refNo):', loanData);
 
-                    // ✅ 5. Backend API Call
-                    const response = await fetch('https://lndb-1.onrender.com/api/loans/apply', {
-
+                    // ✅ Use LOCAL server (same as other forms)
+                    const response = await fetch('http://localhost:5000/api/loans/car-apply', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(loanData)
                     });
 
-                    const responseText = await response.text();
-                    console.log('🔍 Response:', response.status, responseText.substring(0, 300));
-
-                    if (!response.ok || responseText.includes('<!DOCTYPE') || responseText.includes('<html')) {
-                        throw new Error(`Server Error ${response.status}`);
-                    }
-
-                    const result = JSON.parse(responseText);
+                    const result = await response.json();
 
                     if (result.success) {
-                        localStorage.setItem("latestBusinessLoanRef", result.refNo || loanData.refNo);
-                        localStorage.setItem("latestBusinessLoanData", JSON.stringify(loanData));
-                        showToast(`🎉 Business Loan Applied!\nRef: ${result.refNo || loanData.refNo}`, 'success');
+                        // ✅ SERVER-GENERATED refNo use करो!
+                        const serverRefNo = result.loan.refNo || result.loan.ref || result.loan.referenceNo;
+
+                        localStorage.setItem('submissionRefNo', serverRefNo);
+                        localStorage.setItem('submissionType', 'Business Loan');
+
+                        showToast(`🎉 SUCCESS! Ref: ${serverRefNo}`, 'success');
 
                         setTimeout(() => {
                             window.location.href = 'busiloansub.html';
-                        }, 2000);
+                        }, 1500);
                     } else {
-                        throw new Error(result.error || 'Application failed');
+                        throw new Error(result.message || 'Application failed');
                     }
 
                 } catch (error) {
@@ -275,6 +265,7 @@
             });
         });
     </script>
+
 
 
 

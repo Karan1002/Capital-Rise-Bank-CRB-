@@ -166,60 +166,79 @@
         document.getElementById('educationLoanForm').addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            const formData = {
-                refNo: 'EL' + Math.floor(100000 + Math.random() * 900000),
-                studentName: document.getElementById('studentName').value.trim(),
-                email: document.getElementById('email').value.trim(),
-                phone: document.getElementById('phone').value.trim(),
-                amount: document.getElementById('amount').value,
-                loanType: 'Education Loan',
-                course: document.getElementById('course').value.trim(),
-                institution: document.getElementById('institution').value.trim(),
-                submittedOn: new Date().toISOString()
-            };
+            // ✅ Get form data
+            const studentName = document.getElementById('studentName').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const amount = document.getElementById('amount').value;
+            const course = document.getElementById('course').value.trim();
+            const institution = document.getElementById('institution').value.trim();
 
-            // Validation
-            if (!formData.studentName || !formData.email || !formData.phone) {
+            // ✅ Validation
+            if (!studentName || !email || !phone || !amount || !course || !institution) {
                 showToast('Please fill all required fields ⭐', 'error');
                 return;
             }
-            if (!/^[0-9]{10}$/.test(formData.phone)) {
+            if (!/^[0-9]{10}$/.test(phone)) {
                 showToast('Please enter valid 10-digit phone number 📱', 'error');
+                return;
+            }
+            if (isNaN(amount) || amount <= 0) {
+                showToast('Please enter valid loan amount 💰', 'error');
                 return;
             }
 
             showToast('Submitting application...', 'loading');
 
             try {
-                const response = await fetch('http://localhost:5000/api/loans/apply', {
+                // 🔥 ✅ NO CLIENT refNo - SERVER GENERATES LNxxxxx!
+                const loanData = {
+                    applicantName: studentName,
+                    name: studentName,
+                    email: email,
+                    phoneNumber: phone,
+                    phone: phone,
+                    mobile: phone,
+                    carBrand: institution,  // Reuse for institution name
+                    amount: parseInt(amount),
+                    course: course,
+                    loanType: 'Education Loan'
+                    // ✅ NO refNo - server will generate LNxxxxx!
+                };
+
+                console.log('📤 Education Loan Data (NO refNo):', loanData);
+
+                const response = await fetch('http://localhost:5000/api/loans/car-apply', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(formData)
+                    body: JSON.stringify(loanData)
                 });
 
                 const result = await response.json();
 
                 if (response.ok && result.success) {
-                    // ✅ SAVE TO LOCALSTORAGE ALSO (for display)
-                    let applications = JSON.parse(localStorage.getItem("lndbLoanApplications") || "[]");
-                    applications.push(formData);
-                    localStorage.setItem("lndbLoanApplications", JSON.stringify(applications));
+                    // ✅ SERVER-GENERATED refNo use करो!
+                    const serverRefNo = result.loan.refNo || result.loan.ref || result.loan.referenceNo;
 
-                    showToast(`✅ Success! Ref: ${result.refNo}`);
+                    localStorage.setItem('submissionRefNo', serverRefNo);
+                    localStorage.setItem('submissionType', 'Education Loan');
+
+                    showToast(`✅ SUCCESS! Ref: ${serverRefNo}`);
                     document.getElementById('educationLoanForm').reset();
 
                     setTimeout(() => {
                         window.location.href = 'edusubloan.html';
                     }, 1500);
                 } else {
-                    showToast(result.error || 'Submission failed ❌', 'error');
+                    showToast(result.message || 'Submission failed ❌', 'error');
                 }
             } catch (error) {
-                showToast('🔌 Backend server not running', 'error');
+                showToast('🔌 Backend server not running on localhost:5000', 'error');
                 console.error('API Error:', error);
             }
         });
     </script>
+
 
 
 

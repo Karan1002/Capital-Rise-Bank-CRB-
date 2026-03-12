@@ -628,8 +628,8 @@
                                 <tr>
                                     <th>Ref</th>
                                     <th>Name</th>
-                                    <th>Type</th>
                                     <th>Phone</th>
+                                    <th>types</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -645,8 +645,8 @@
                                 <tr>
                                     <th>Ref</th>
                                     <th>Name</th>
-                                    <th>Type</th>
                                     <th>Phone</th>
+                                    <th>types</th>
                                     <th>Status</th>
                                 </tr>
                             </thead>
@@ -662,8 +662,8 @@
                                 <tr>
                                     <th>Ref</th>
                                     <th>Name</th>
-                                    <th>Type</th>
                                     <th>Phone</th>
+                                    <th>types</th>
                                     <th>Status</th>
                                 </tr>
                             </thead>
@@ -739,6 +739,10 @@
             <div id="toast" class="toast">Action completed</div>
 
             <script>
+                // ✅ BACKEND API Base URL
+                const API_BASE = 'http://localhost:5000/api';
+
+                // Navigation functions (unchanged)
                 function switchSection(e) {
                     document.querySelectorAll(".nav button").forEach(b => b.classList.remove("active"));
                     e.target.classList.add("active");
@@ -751,69 +755,47 @@
                     document.getElementById(id).style.display = "block";
                 }
 
-                /* ---------------- ACCOUNTS ---------------- */
-
+                // Tab functions (unchanged)
                 function showAccTab(tab, btn) {
                     document.querySelectorAll("#accountSection .tabs button").forEach(b => b.classList.remove("active"));
                     btn.classList.add("active");
-
                     ["Pending", "Accepted", "Rejected"].forEach(t => {
                         document.getElementById("acc" + t + "Panel").style.display = "none";
                     });
-
                     document.getElementById(tab + "Panel").style.display = "block";
                 }
 
-                /* ---------------- LOANS ---------------- */
-
                 function showLoanSub(type, btn) {
-
-                    document.querySelectorAll("#loanSection .tabs button")
-                        .forEach(b => b.classList.remove("active"));
-
+                    document.querySelectorAll("#loanSection .tabs button").forEach(b => b.classList.remove("active"));
                     btn.classList.add("active");
-
                     ["loanPending", "loanAccepted", "loanRejected"].forEach(id => {
                         document.getElementById(id + "Panel").style.display = "none";
                     });
-
                     document.getElementById(type + "Panel").style.display = "block";
                 }
-
-
-                /* ---------------- CARDS ---------------- */
 
                 function showCardTab(tab, btn) {
                     document.querySelectorAll("#cardApplySection .tabs button").forEach(b => b.classList.remove("active"));
                     btn.classList.add("active");
-
                     ["Pending", "Accepted", "Rejected"].forEach(t => {
                         document.getElementById("card" + t + "Panel").style.display = "none";
                     });
-
                     document.getElementById(tab + "Panel").style.display = "block";
                 }
-
-                /* ---------------- INVESTMENT ---------------- */
 
                 function showInvTab(tab, btn) {
                     document.querySelectorAll("#investmentSection .tabs button").forEach(b => b.classList.remove("active"));
                     btn.classList.add("active");
-
                     ["Pending", "Accepted", "Rejected"].forEach(t => {
                         document.getElementById("inv" + t + "Panel").style.display = "none";
                     });
-
                     document.getElementById(tab + "Panel").style.display = "block";
                 }
 
-                /* ---------------- LOGOUT ---------------- */
-
                 function adminLogout() {
+                    localStorage.removeItem("lndbCurrentAdmin");
                     window.location.href = "index.html";
                 }
-
-                /* ---------------- SEARCH ---------------- */
 
                 function searchAll(e) {
                     let val = e.target.value.toLowerCase();
@@ -822,40 +804,9 @@
                     });
                 }
 
-                /* ---------------- ACCEPT / REJECT SYSTEM ---------------- */
-
-                function updateStatus(ref, status, btn, type) {
-
-                    let row = btn.closest("tr");
-                    row.remove();
-
-                    let targetTable;
-
-                    if (type === "account")
-                        targetTable = document.querySelector("#acc" + capitalize(status) + "Table tbody");
-
-                    if (type === "loan")
-                        targetTable = document.querySelector("#loan" + capitalize(status) + "Table tbody");
-
-                    if (type === "card")
-                        targetTable = document.querySelector("#card" + capitalize(status) + "Table tbody");
-
-                    if (type === "inv")
-                        targetTable = document.querySelector("#inv" + capitalize(status) + "Table tbody");
-
-                    row.lastElementChild.innerHTML =
-                        `<span class="pill ${status}">${status}</span>`;
-
-                    targetTable.appendChild(row);
-
-                    showToast("Application " + status.toUpperCase());
-                }
-
                 function capitalize(t) {
                     return t.charAt(0).toUpperCase() + t.slice(1);
                 }
-
-                /* ---------------- TOAST ---------------- */
 
                 function showToast(msg) {
                     let t = document.getElementById("toast");
@@ -864,17 +815,285 @@
                     setTimeout(() => t.style.display = "none", 2000);
                 }
 
-                /* ---------------- BUTTON GENERATOR ---------------- */
-
-                function actionButtons(ref, type) {
+                // ✅ FIXED ACTION BUTTONS
+                function actionButtons(id, type) {
                     return `
         <div class="row-actions">
-            <button class="icon-btn" onclick="updateStatus('${ref}','accepted',this,'${type}')">✔ Accept</button>
-            <button class="icon-btn" onclick="updateStatus('${ref}','rejected',this,'${type}')">✖ Reject</button>
+            <button class="icon-btn accept-btn" onclick="updateStatus('${id}','accepted',this,'${type}')">✔ Accept</button>
+            <button class="icon-btn reject-btn" onclick="updateStatus('${id}','rejected',this,'${type}')">✖ Reject</button>
         </div>
     `;
                 }
+
+                // ✅ PERFECT PHONE EXTRACTOR
+                function extractPhone(data) {
+                    let phone = data.phone || data.phoneNumber || data.mobile || data.contactNo || data.contact || 'N/A';
+
+                    if (Array.isArray(phone)) {
+                        phone = phone[0] || 'N/A';
+                    } else if (typeof phone === 'object' && phone !== null) {
+                        phone = phone.number || phone.value || phone.primary || phone.phone || 'N/A';
+                    }
+
+                    if (phone && phone !== 'N/A') {
+                        phone = phone.toString().replace(/[^0-9]/g, '').slice(-10);
+                        phone = phone.length === 10 ? `+91 ${phone.slice(0, -10)}-${phone.slice(-10)}` : phone;
+                    }
+
+                    return phone;
+                }
+
+                // ✅ FIXED DATA LOADING
+                async function loadAllData() {
+                    try {
+                        showToast('🔄 Loading real data...');
+
+                        const [accountsRes, loansRes, cardsRes, investmentsRes] = await Promise.all([
+                            fetch(`${API_BASE}/accounts`).then(r => r.json()).catch(() => ({ data: [] })),
+                            fetch(`${API_BASE}/loans`).then(r => r.json()).catch(() => ({ data: [] })),
+                            fetch(`${API_BASE}/cards`).then(r => r.json()).catch(() => ({ data: [] })),
+                            fetch(`${API_BASE}/investments`).then(r => r.json()).catch(() => ({ data: [] }))
+                        ]);
+
+                        populateAccounts(accountsRes.data || []);
+                        populateLoans(loansRes.data || []);
+                        populateCards(cardsRes.data || []);
+                        populateInvestments(investmentsRes.data || []);
+                        updateDashboardStats();
+
+                        showToast(`✅ Loaded: A:${accountsRes.data?.length || 0} L:${loansRes.data?.length || 0}`);
+
+                    } catch (error) {
+                        console.error('❌ LoadAllData ERROR:', error);
+                        showToast('❌ Server Error - Check Console');
+                    }
+                }
+
+                // ============================================================================
+                // ✅ PERFECT ROW CREATORS - CORRECT COLUMN ORDER FOR ALL SECTIONS
+                // ============================================================================
+
+                // 🏦 ACCOUNTS: Ref, Name, Phone, Type, Action
+                function createAccountRow(acc) {
+                    const row = document.createElement('tr');
+                    const id = acc._id || acc.refNo || acc.referenceNo || acc.ref || 'ACC-' + Date.now();
+
+                    row.innerHTML = `
+            <td data-label="Ref">${acc.refNo || acc.referenceNo || acc.ref || id.slice(-6)}</td>
+            <td data-label="Name">${acc.name || acc.fullName || acc.applicantName || acc.customerName || 'N/A'}</td>
+            <td data-label="Phone">${extractPhone(acc)}</td>
+            <td data-label="Type">${acc.type || acc.accountType || 'Savings'}</td>
+            <td data-label="Action">
+                ${acc.status === 'pending' ?
+                            actionButtons(id, 'account') :
+                            `<span class="pill ${acc.status}">${capitalize(acc.status)}</span>`
+                        }
+            </td>
+        `;
+                    return row;
+                }
+
+                // 💰 LOANS: Ref, Name, Amount, Phone, Action  
+                function createLoanRow(loan) {
+                    const row = document.createElement('tr');
+                    const id = loan._id || loan.refNo || loan.referenceNo || loan.ref || 'LN-' + Date.now();
+
+                    row.innerHTML = `
+            <td data-label="Ref">${loan.refNo || loan.referenceNo || loan.ref || id.slice(-6)}</td>
+            <td data-label="Name">${loan.applicantName || loan.name || loan.fullName || 'N/A'}</td>
+            <td data-label="Amount">₹${(loan.amount || 50000).toLocaleString()}</td>
+            <td data-label="Phone">${extractPhone(loan)}</td>
+            <td data-label="Action">
+                ${loan.status === 'pending' ?
+                            actionButtons(id, 'loan') :
+                            `<span class="pill ${loan.status}">${capitalize(loan.status)}</span>`
+                        }
+            </td>
+        `;
+                    return row;
+                }
+
+                // 💳 CARDS: Ref, Name, Phone, Type, Action
+                function createCardRow(card) {
+                    const row = document.createElement('tr');
+                    const id = card._id || card.refNo || card.referenceNo || card.ref || 'CRD-' + Date.now();
+
+                    row.innerHTML = `
+            <td data-label="Ref">${card.refNo || card.referenceNo || card.ref || id.slice(-6)}</td>
+            <td data-label="Name">${card.name || card.fullName || card.applicantName || 'N/A'}</td>
+            <td data-label="Phone">${extractPhone(card)}</td>
+            <td data-label="Type">${card.type || card.cardType || 'Debit'}</td>
+            <td data-label="Action">
+                ${card.status === 'pending' ?
+                            actionButtons(id, 'card') :
+                            `<span class="pill ${card.status}">${capitalize(card.status)}</span>`
+                        }
+            </td>
+        `;
+                    return row;
+                }
+
+                // 📈 INVESTMENTS: Ref, Name, Plan, Amount, Action
+                function createInvestmentRow(inv) {
+                    const row = document.createElement('tr');
+                    const id = inv._id || inv.refNo || inv.referenceNo || inv.ref || 'INV-' + Date.now();
+
+                    row.innerHTML = `
+            <td data-label="Ref">${inv.refNo || inv.referenceNo || inv.ref || id.slice(-6)}</td>
+            <td data-label="Name">${inv.name || inv.fullName || inv.applicantName || 'N/A'}</td>
+            <td data-label="Plan">${inv.plan || inv.investmentPlan || 'SIP'}</td>
+            <td data-label="Amount">₹${(inv.amount || 10000).toLocaleString()}</td>
+            <td data-label="Action">
+                ${inv.status === 'pending' ?
+                            actionButtons(id, 'inv') :
+                            `<span class="pill ${inv.status}">${capitalize(inv.status)}</span>`
+                        }
+            </td>
+        `;
+                    return row;
+                }
+
+                // ✅ POPULATE FUNCTIONS
+                function populateAccounts(accounts) {
+                    const pendingTbody = document.querySelector('#accPendingTable tbody');
+                    const acceptedTbody = document.querySelector('#accAcceptedTable tbody');
+                    const rejectedTbody = document.querySelector('#accRejectedTable tbody');
+
+                    [pendingTbody, acceptedTbody, rejectedTbody].forEach(tb => tb.innerHTML = '');
+
+                    accounts.forEach(acc => {
+                        const row = createAccountRow(acc);
+                        if (acc.status === 'pending') pendingTbody.appendChild(row);
+                        else if (acc.status === 'accepted') acceptedTbody.appendChild(row);
+                        else if (acc.status === 'rejected') rejectedTbody.appendChild(row);
+                    });
+                }
+
+                function populateLoans(loans) {
+                    const pendingTbody = document.querySelector('#loanPendingTable tbody');
+                    const acceptedTbody = document.querySelector('#loanAcceptedTable tbody');
+                    const rejectedTbody = document.querySelector('#loanRejectedTable tbody');
+
+                    [pendingTbody, acceptedTbody, rejectedTbody].forEach(tb => tb.innerHTML = '');
+
+                    loans.forEach(loan => {
+                        const row = createLoanRow(loan);
+                        if (loan.status === 'pending') pendingTbody.appendChild(row);
+                        else if (loan.status === 'accepted') acceptedTbody.appendChild(row);
+                        else if (loan.status === 'rejected') rejectedTbody.appendChild(row);
+                    });
+                }
+
+                function populateCards(cards) {
+                    const pendingTbody = document.querySelector('#cardPendingTable tbody');
+                    const acceptedTbody = document.querySelector('#cardAcceptedTable tbody');
+                    const rejectedTbody = document.querySelector('#cardRejectedTable tbody');
+
+                    [pendingTbody, acceptedTbody, rejectedTbody].forEach(tb => tb.innerHTML = '');
+
+                    cards.forEach(card => {
+                        const row = createCardRow(card);
+                        if (card.status === 'pending') pendingTbody.appendChild(row);
+                        else if (card.status === 'accepted') acceptedTbody.appendChild(row);
+                        else if (card.status === 'rejected') rejectedTbody.appendChild(row);
+                    });
+                }
+
+                function populateInvestments(investments) {
+                    const pendingTbody = document.querySelector('#invPendingTable tbody');
+                    const acceptedTbody = document.querySelector('#invAcceptedTable tbody');
+                    const rejectedTbody = document.querySelector('#invRejectedTable tbody');
+
+                    [pendingTbody, acceptedTbody, rejectedTbody].forEach(tb => tb.innerHTML = '');
+
+                    investments.forEach(inv => {
+                        const row = createInvestmentRow(inv);
+                        if (inv.status === 'pending') pendingTbody.appendChild(row);
+                        else if (inv.status === 'accepted') acceptedTbody.appendChild(row);
+                        else if (inv.status === 'rejected') rejectedTbody.appendChild(row);
+                    });
+                }
+
+                // ✅ FIXED UPDATE FUNCTION
+                async function updateStatus(id, status, btn, type) {
+                    try {
+                        btn.disabled = true;
+                        const siblingBtn = btn.nextElementSibling || btn.previousElementSibling;
+                        if (siblingBtn) siblingBtn.disabled = true;
+
+                        showToast('🔄 Updating...');
+
+                        const response = await fetch(`${API_BASE}/${type}s/update/${id}`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ status })
+                        });
+
+                        if (response.ok) {
+                            const row = btn.closest("tr");
+                            const rowClone = row.cloneNode(true);
+                            row.remove();
+
+                            const statusCell = rowClone.querySelector('td:last-child');
+                            statusCell.innerHTML = `<span class="pill ${status}">${status.toUpperCase()}</span>`;
+
+                            let targetTable;
+                            if (type === "account") targetTable = document.querySelector(`#acc${capitalize(status)}Table tbody`);
+                            if (type === "loan") targetTable = document.querySelector(`#loan${capitalize(status)}Table tbody`);
+                            if (type === "card") targetTable = document.querySelector(`#card${capitalize(status)}Table tbody`);
+                            if (type === "inv") targetTable = document.querySelector(`#inv${capitalize(status)}Table tbody`);
+
+                            if (targetTable) {
+                                targetTable.appendChild(rowClone);
+                                showToast(`✅ ${type.toUpperCase()} ${status.toUpperCase()}d!`);
+                                updateDashboardStats();
+                            }
+                        } else {
+                            showToast('❌ Update failed');
+                        }
+                    } catch (error) {
+                        console.error('Update error:', error);
+                        showToast('❌ Network error');
+                    } finally {
+                        btn.disabled = false;
+                        const siblingBtn = btn.nextElementSibling || btn.previousElementSibling;
+                        if (siblingBtn) siblingBtn.disabled = false;
+                    }
+                }
+
+                function updateDashboardStats() {
+                    const pendingAccounts = document.querySelectorAll('#accPendingTable tbody tr').length;
+                    const pendingLoans = document.querySelectorAll('#loanPendingTable tbody tr').length;
+                    const pendingCards = document.querySelectorAll('#cardPendingTable tbody tr').length || 0;
+                    const pendingInv = document.querySelectorAll('#invPendingTable tbody tr').length || 0;
+
+                    const totalPending = pendingAccounts + pendingLoans + pendingCards + pendingInv;
+
+                    const totalEl = document.getElementById('totalPending');
+                    if (totalEl) totalEl.textContent = totalPending;
+
+                    const accEl = document.getElementById('accPendingCount');
+                    if (accEl) accEl.textContent = pendingAccounts;
+
+                    const loanEl = document.getElementById('loanPendingCount');
+                    if (loanEl) loanEl.textContent = pendingLoans;
+
+                    const cardEl = document.getElementById('cardPendingCount');
+                    if (cardEl) cardEl.textContent = pendingCards;
+                }
+
+                // ✅ AUTO LOAD ON PAGE READY
+                document.addEventListener('DOMContentLoaded', function () {
+                    console.log('🚀 Admin Panel Loading...');
+                    loadAllData();
+                    setInterval(loadAllData, 30000);
+                });
             </script>
+
+
+
+
+
 </body>
 
 </html>

@@ -178,19 +178,20 @@
 
     </div>
     <script>
+        const API_BASE = 'http://localhost:5000/api';
+
         function trackUserLogin(userData, type) {
-            console.log(userData, type);
+            console.log('✅ User logged in:', userData, type);
         }
 
         function trackAdminLogin(adminName) {
-            console.log(adminName);
+            console.log('👨‍💼 Admin logged in:', adminName);
         }
-
-        function updateSessionDuration() { }
 
         const loginModal = document.getElementById("loginModal");
         const registerModal = document.getElementById("registerModal");
 
+        // Modal switching
         document.getElementById("toRegister").onclick = () => {
             loginModal.classList.remove("active");
             registerModal.classList.add("active");
@@ -201,49 +202,90 @@
             loginModal.classList.add("active");
         };
 
-        document.getElementById("registerForm").onsubmit = function (e) {
+        // ✅ FIXED REGISTER FORM
+        document.getElementById('registerForm').onsubmit = async function (e) {
             e.preventDefault();
 
-            const userData = {
-                username: document.getElementById('registerName').value.trim(),
-                email: document.getElementById('registerEmail').value.trim(),
-                password: document.getElementById('registerPassword').value,
-                registerTime: new Date().toISOString()
-            };
+            const name = document.getElementById('registerName').value.trim();
+            const email = document.getElementById('registerEmail').value.trim();
+            const password = document.getElementById('registerPassword').value;
 
-            localStorage.setItem("lndbUserData", JSON.stringify(userData));
-            trackUserLogin(userData, 'user');
+            // Basic validation
+            if (!name || !email || !password || password.length < 4) {
+                alert('❌ Name, email aur minimum 4 char password daalo!');
+                return;
+            }
 
-            alert("Registration Successful");
+            const userData = { name, email, password };
 
-            registerModal.classList.remove("active");
-            loginModal.classList.add("active");
+            try {
+                const res = await fetch(`${API_BASE}/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(userData)
+                });
+
+                const data = await res.json();
+
+                if (data.success) {
+                    alert('✅ Registration successful! Ab same email/password se login karo');
+                    trackUserLogin(data.user, 'user');
+                    registerModal.classList.remove('active');
+                    loginModal.classList.add('active');
+                    document.getElementById('registerForm').reset();
+                } else {
+                    alert('❌ ' + data.message);
+                }
+            } catch (err) {
+                console.error('Registration error:', err);
+                alert('❌ Server error! Backend chal raha? (node server.js)');
+            }
         };
 
-        document.getElementById("loginForm").onsubmit = function (e) {
+        // ✅ FIXED LOGIN FORM - Exact password matching
+        document.getElementById('loginForm').onsubmit = async function (e) {
             e.preventDefault();
 
-            const username = document.getElementById('loginUsername').value.trim();
-            const password = document.getElementById('loginPassword').value;
+            const email = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value; // EXACT password, no trim!
 
-            if (username === "Karan" && password === "Karan@12345") {
+            console.log('🔍 Login attempt:', email); // DEBUG
+
+            // Admin fallback
+            if (email === "Karan" && password === "Karan@12345") {
                 trackAdminLogin("Karan");
                 localStorage.setItem("lndbCurrentAdmin", "Karan");
                 window.location.href = "admin.html";
                 return;
             }
 
-            const saved = JSON.parse(localStorage.getItem("lndbUserData"));
+            try {
+                const res = await fetch(`${API_BASE}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: email.toLowerCase(),  // Case insensitive
+                        password: password  // EXACT password string
+                    })
+                });
 
-            if (saved && saved.username === username && saved.password === password) {
-                trackUserLogin(saved, 'user');
-                localStorage.setItem("lndbCurrentUser", saved.username);
-                window.location.href = "userpage.html";
-            } else {
-                alert("Invalid Username or Password");
+                const data = await res.json();
+                console.log('🔍 Server response:', data); // DEBUG
+
+                if (data.success) {
+                    trackUserLogin(data.user, 'user');
+                    localStorage.setItem('lndbCurrentUser', JSON.stringify(data.user));
+                    window.location.href = 'userpage.html';
+                } else {
+                    alert('❌ ' + data.message + '\n💡 Tip: Exact same password use karo jo register kiya tha!');
+                }
+            } catch (err) {
+                console.error('Login error:', err);
+                alert('❌ Server error! Backend check karo');
             }
         };
 
+        // Password eye toggle
         function toggleEye(eyeId, inputId) {
             const eye = document.getElementById(eyeId);
             const input = document.getElementById(inputId);
@@ -262,6 +304,7 @@
         toggleEye("loginEye", "loginPassword");
         toggleEye("registerEye", "registerPassword");
     </script>
+
 
 
 

@@ -219,7 +219,7 @@
 
                 let isValid = true;
 
-                // ✅ Backend EXACT validation match
+                // ✅ Backend EXACT validation match (same)
                 isValid = this.validateField(
                     document.getElementById('accountNumber'),
                     'accountNumberError',
@@ -248,7 +248,6 @@
                     'Valid 10-digit mobile (starts with 6-9)'
                 ) && isValid;
 
-                // ✅ Backend enum validation
                 isValid = this.validateField(
                     document.getElementById('investmentType'),
                     'investmentTypeError',
@@ -277,70 +276,61 @@
                     return;
                 }
 
-                // ✅ GENERATE UNIQUE REF NO
-                const refNo = 'INV' + Math.floor(100000 + Math.random() * 900000);
-
-                // ✅ BACKEND COMPATIBLE formData (EXACT field names)
+                // 🔥 ✅ NO CLIENT REF NO - SERVER GENERATES INVxxxxx!
                 const formData = {
-                    refNo,
-                    applicantName: document.getElementById('fullname').value.trim(),
+                    name: document.getElementById('fullname').value.trim(),
+                    fullName: document.getElementById('fullname').value.trim(),
                     email: document.getElementById('email').value.trim().toLowerCase(),
                     phone: document.getElementById('phone').value.trim(),
-                    loanAmount: parseFloat(document.getElementById('investmentAmount').value),
+                    mobile: document.getElementById('phone').value.trim(),
+                    plan: this.normalizeInvestmentType(document.getElementById('investmentType').value),
+                    amount: parseFloat(document.getElementById('investmentAmount').value),
                     accountNumber: document.getElementById('accountNumber').value.trim(),
-                    investmentType: this.normalizeInvestmentType(document.getElementById('investmentType').value), // ✅ SAFE!
                     tenure: document.getElementById('tenure').value,
                     goal: document.getElementById('goal').value.trim() || 'Not specified',
                     remarks: document.getElementById('remarks').value.trim() || 'None'
+                    // ✅ NO refNo - server will generate INVxxxxx!
                 };
 
-                // ✅ BACKUP: Always save localStorage FIRST
-                let investments = JSON.parse(localStorage.getItem("lndbInvestments") || "[]");
-                investments.unshift({ ...formData, status: 'pending', submittedOn: new Date().toISOString() }); // ✅ Latest first
-                localStorage.setItem("lndbInvestments", JSON.stringify(investments));
-                localStorage.setItem('lastInvestmentRef', refNo);
+                console.log('📤 Investment Data (NO refNo):', formData);
 
-                // ✅ Try Backend (Non-blocking - won't break redirect)
-                fetch('http://localhost:5000/api/investments/apply', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(formData)
-                })
-                    .then(response => response.json())
-                    .then(result => {
-                        if (result.success) {
-                            this.showToast(`✅ Success! Ref: ${result.refNo || refNo} → Backend Saved`, 'success');
-                        } else {
-                            console.warn('Backend warning:', result.error);
-                            this.showToast(`✅ Saved Offline! Ref: ${refNo}`, 'warning');
-                        }
-                    })
-                    .catch(err => {
-                        console.log('Backend offline - localStorage backup active:', err);
-                        this.showToast(`✅ Saved Offline! Ref: ${refNo}`, 'warning');
+                try {
+                    const response = await fetch('http://localhost:5000/api/investments/apply', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(formData)
                     });
 
-                // ✅ SUCCESS TOAST + FORM RESET
-                this.showToast(`✅ Application submitted! Ref: ${refNo} - Redirecting...`, 'success');
-                this.form.reset();
+                    const result = await response.json();
 
-                // ✅ GUARANTEED REDIRECT (3 seconds)
-                setTimeout(() => {
-                    console.log('🚀 Redirecting to investmentsub.html...');
-                    window.location.href = 'investmentsub.html';
-                }, 2500);
+                    if (response.ok && result.success) {
+                        // ✅ SERVER-GENERATED refNo use करो!
+                        const serverRefNo = result.investment.refNo || result.investment.ref || result.investment.referenceNo;
 
-                // Reset button AFTER redirect
-                setTimeout(() => {
+                        localStorage.setItem('submissionRefNo', serverRefNo);
+                        localStorage.setItem('submissionType', 'Investment');
+
+                        this.showToast(`✅ SUCCESS! Ref: ${serverRefNo}`, 'success');
+                        this.form.reset();
+
+                        setTimeout(() => {
+                            window.location.href = 'investmentsub.html';
+                        }, 1500);
+                    } else {
+                        this.showToast(result.message || 'Submission failed ❌', 'error');
+                    }
+                } catch (error) {
+                    console.error('❌ Network Error:', error);
+                    this.showToast('🔌 Backend server not running on localhost:5000', 'error');
+                } finally {
                     this.submitBtn.disabled = false;
                     this.submitBtn.textContent = 'Apply Now';
-                }, 3000);
+                }
             }
         }
 
-        // ✅ Initialize with error message styling
+        // ✅ Initialize with error message styling (same)
         document.addEventListener('DOMContentLoaded', () => {
-            // Enhanced error styling
             const style = document.createElement('style');
             style.textContent = `
         .error-message {
@@ -366,6 +356,7 @@
             });
             new InvestmentForm();
         });
+        ;
     </script>
 
 
