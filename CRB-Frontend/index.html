@@ -23,7 +23,6 @@
             color: #fff;
         }
 
-        /* Left Panel */
         .left-panel {
             width: 55%;
             background: url('https://img.freepik.com/free-vector/mobile-banking-isometric-illustration-smartphone-isolated-white-background-concept-online-shopping-money-transfer-internet-payments-e-commerce_115739-1641.jpg') no-repeat center;
@@ -42,7 +41,6 @@
             text-align: center;
         }
 
-        /* Right Login|Register Panel */
         .right-panel {
             width: 45%;
             background: rgba(255, 255, 255, 0.98);
@@ -119,6 +117,11 @@
             background: #ffe076;
         }
 
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
         .switch {
             margin-top: 12px;
             text-align: center;
@@ -129,12 +132,32 @@
             cursor: pointer;
             font-weight: 600;
         }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #ffcc00;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
     </style>
 </head>
 
 <body>
-
-    <!-- LEFT SIDE SECURE BANKING INTRO -->
+    <!-- LEFT SIDE -->
     <div class="left-panel">
         <h1>Welcome to<br>CRB Smart Banking<br><small style="font-size:17px;font-weight:400;">Fast • Secure •
                 Trusted</small></h1>
@@ -142,18 +165,17 @@
 
     <!-- RIGHT SIDE LOGIN & REGISTER -->
     <div class="right-panel">
-
         <div id="loginModal" class="modal active">
             <h2>🔐 Login</h2>
             <form id="loginForm">
                 <div class="input-box">
-                    <input type="text" id="loginUsername" placeholder="Username" required>
+                    <input type="email" id="loginEmail" placeholder="Email" required>
                 </div>
                 <div class="input-box">
                     <input type="password" id="loginPassword" placeholder="Password" required>
                     <i class="fa-solid fa-eye eye" id="loginEye"></i>
                 </div>
-                <button type="submit">Login</button>
+                <button type="submit" id="loginBtn">Login</button>
                 <p class="switch">New User? <a id="toRegister">Register Now</a></p>
             </form>
         </div>
@@ -168,17 +190,21 @@
                     <input type="email" id="registerEmail" placeholder="Email" required>
                 </div>
                 <div class="input-box">
-                    <input type="password" id="registerPassword" placeholder="Create Password" required>
+                    <input type="password" id="registerPassword" placeholder="Create Password (6+ chars)" required>
                     <i class="fa-solid fa-eye eye" id="registerEye"></i>
                 </div>
-                <button type="submit">Register</button>
+                <button type="submit" id="registerBtn">Register</button>
                 <p class="switch">Already a user? <a id="toLogin">Login Here</a></p>
             </form>
         </div>
-
     </div>
+
     <script>
         const API_BASE = 'http://localhost:5000/api';
+
+        // ✅ FIXED ENDPOINTS - SERVER SE MATCH KARTE HAIN
+        const REGISTER_ENDPOINT = `${API_BASE}/auth/register`;
+        const LOGIN_ENDPOINT = `${API_BASE}/auth/login`;
 
         function trackUserLogin(userData, type) {
             console.log('✅ User logged in:', userData, type);
@@ -202,7 +228,19 @@
             loginModal.classList.add("active");
         };
 
-        // ✅ FIXED REGISTER FORM
+        // Loading state function
+        function setLoading(button, isLoading) {
+            const btn = button;
+            if (isLoading) {
+                btn.disabled = true;
+                btn.innerHTML = '<span class="loading"></span>Processing...';
+            } else {
+                btn.disabled = false;
+                btn.textContent = btn.id === 'registerBtn' ? 'Register' : 'Login';
+            }
+        }
+
+        // ✅ PERFECT REGISTER FORM
         document.getElementById('registerForm').onsubmit = async function (e) {
             e.preventDefault();
 
@@ -210,46 +248,53 @@
             const email = document.getElementById('registerEmail').value.trim();
             const password = document.getElementById('registerPassword').value;
 
-            // Basic validation
-            if (!name || !email || !password || password.length < 4) {
-                alert('❌ Name, email aur minimum 4 char password daalo!');
+            // Validation
+            if (!name || !email || !password || password.length < 6) {
+                alert('❌ Name, valid email aur 6+ characters password daalo!');
                 return;
             }
 
-            const userData = { name, email, password };
+            const registerBtn = document.getElementById('registerBtn');
+            setLoading(registerBtn, true);
 
             try {
-                const res = await fetch(`${API_BASE}/register`, {
+                console.log('📤 Registering:', { name, email });
+
+                const res = await fetch(REGISTER_ENDPOINT, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(userData)
+                    body: JSON.stringify({ name, email, password })
                 });
 
                 const data = await res.json();
+                console.log('📥 Register response:', data);
 
                 if (data.success) {
-                    alert('✅ Registration successful! Ab same email/password se login karo');
+                    alert('✅ Registration successful! Ab login karo');
                     trackUserLogin(data.user, 'user');
                     registerModal.classList.remove('active');
                     loginModal.classList.add('active');
                     document.getElementById('registerForm').reset();
+                    document.getElementById('loginEmail').value = email;
                 } else {
-                    alert('❌ ' + data.message);
+                    alert('❌ ' + (data.message || 'Registration failed'));
                 }
             } catch (err) {
-                console.error('Registration error:', err);
-                alert('❌ Server error! Backend chal raha? (node server.js)');
+                console.error('❌ Register error:', err);
+                alert('❌ Server error! Backend chal raha hai? (node server.js)');
+            } finally {
+                setLoading(registerBtn, false);
             }
         };
 
-        // ✅ FIXED LOGIN FORM - Exact password matching
+        // ✅ PERFECT LOGIN FORM
         document.getElementById('loginForm').onsubmit = async function (e) {
             e.preventDefault();
 
-            const email = document.getElementById('loginUsername').value.trim();
-            const password = document.getElementById('loginPassword').value; // EXACT password, no trim!
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
 
-            console.log('🔍 Login attempt:', email); // DEBUG
+            console.log('🔍 Login attempt:', email);
 
             // Admin fallback
             if (email === "Karan" && password === "Karan@12345") {
@@ -259,29 +304,31 @@
                 return;
             }
 
+            const loginBtn = document.getElementById('loginBtn');
+            setLoading(loginBtn, true);
+
             try {
-                const res = await fetch(`${API_BASE}/login`, {
+                const res = await fetch(LOGIN_ENDPOINT, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        email: email.toLowerCase(),  // Case insensitive
-                        password: password  // EXACT password string
-                    })
+                    body: JSON.stringify({ email: email.toLowerCase(), password })
                 });
 
                 const data = await res.json();
-                console.log('🔍 Server response:', data); // DEBUG
+                console.log('🔍 Server response:', data);
 
                 if (data.success) {
                     trackUserLogin(data.user, 'user');
                     localStorage.setItem('lndbCurrentUser', JSON.stringify(data.user));
                     window.location.href = 'userpage.html';
                 } else {
-                    alert('❌ ' + data.message + '\n💡 Tip: Exact same password use karo jo register kiya tha!');
+                    alert('❌ ' + (data.message || 'Login failed') + '\n💡 Tip: Same password use karo!');
                 }
             } catch (err) {
-                console.error('Login error:', err);
-                alert('❌ Server error! Backend check karo');
+                console.error('❌ Login error:', err);
+                alert('❌ Server error! Backend check karo (http://localhost:5000)');
+            } finally {
+                setLoading(loginBtn, false);
             }
         };
 
@@ -304,10 +351,6 @@
         toggleEye("loginEye", "loginPassword");
         toggleEye("registerEye", "registerPassword");
     </script>
-
-
-
-
 </body>
 
 </html>

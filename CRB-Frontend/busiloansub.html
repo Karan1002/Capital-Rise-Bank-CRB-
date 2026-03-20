@@ -93,7 +93,7 @@
     <h1>Your Business Loan Application Has Been Submitted!</h1>
 
     <p>Thank you for applying for a <strong>Business Loan</strong> with
-        <strong>CapitalRise Bank (CRB)</strong>.<br>
+        <strong>Lena Dena Bank (LNDB)</strong>.<br>
         Your loan application has been successfully received.
     </p>
 
@@ -101,7 +101,7 @@
         <!-- Reference number will be loaded here -->
     </div>
 
-    <p>Please visit your nearest CRB branch with the following documents for verification:</p>
+    <p>Please visit your nearest LNDB branch with the following documents for verification:</p>
 
     <ul>
         <li>Valid Photo ID (Aadhar Card, Passport, or Voter ID)</li>
@@ -114,43 +114,46 @@
 
     <button onclick="window.location.href='index.html'">Return to Home</button>
 
-    <div class="footer">© 2025 CapitalRise Bank (CRB) — All Rights Reserved.</div>
+    <div class="footer">© 2025 Lena Dena Bank (LNDB) — All Rights Reserved.</div>
 
-    <!-- Replace the entire <script> section in busiloansub.html: -->
+    <!-- Replace the entire <script> section: -->
     <script>
         window.onload = function () {
             try {
-                // ✅ SERVER-GENERATED refNo (standard key)
+                // ✅ SERVER GENERATED RefNo - PRIORITY 1 (MongoDB का LNxxxxx)
                 const savedRef = localStorage.getItem('submissionRefNo');
                 const formType = localStorage.getItem('submissionType') || 'Business Loan';
 
                 const refContainer = document.getElementById("refContainer");
 
-                if (savedRef) {
-                    // ✅ SERVER refNo show करो (LN123456)
+                // ✅ PRIORITY 1: Server refNo (Main form से आया)
+                if (savedRef && formType === 'Business Loan') {
                     refContainer.innerHTML = `
-                    <div class="ref-box" style="background: #e8f5e8; padding: 20px; border-radius: 10px; text-align: center;">
-                        <h3>✅ ${formType} Submitted Successfully!</h3>
-                        <div style="font-size: 1.5em; color: #28a745; font-weight: bold; margin: 10px 0;">
-                            Reference Number: <strong>${savedRef}</strong>
+                    <div class="ref-box">
+                        Reference Number: <strong>${savedRef}</strong>
+                    </div>
+                `;
+                }
+                // ✅ PRIORITY 2: Fallback localStorage check
+                else {
+                    let applications = JSON.parse(localStorage.getItem("lndbLoanApplications")) || [];
+                    let latestBusinessLoan = applications
+                        .filter(app => app.loanType === 'Business Loan')
+                        .sort((a, b) => new Date(b.submittedOn) - new Date(a.submittedOn))[0];
+
+                    if (latestBusinessLoan) {
+                        refContainer.innerHTML = `
+                        <div class="ref-box">
+                            Reference Number: <strong>${latestBusinessLoan.refNo}</strong>
                         </div>
-                        <p style="color: #666;">
-                            Save this reference number for tracking your application.
-                        </p>
-                        <button onclick="printReceipt()" style="background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">
-                            🖨️ Print Receipt
-                        </button>
-                    </div>
-                `;
-                    showToast(`✅ ${formType} Ref: ${savedRef}`);
-                } else {
-                    refContainer.innerHTML = `
-                    <div class="error" style="background: #f8d7da; color: #721c24; padding: 20px; border-radius: 10px; text-align: center;">
-                        <h3>⚠️ No Recent Application</h3>
-                        <p><a href="businessloan.html" style="color: #007bff;">Apply Again</a></p>
-                    </div>
-                `;
-                    showToast('No application found', 'error');
+                    `;
+                    } else {
+                        refContainer.innerHTML = `
+                        <div class="error">
+                            No business loan applications found. Please apply again.
+                        </div>
+                    `;
+                    }
                 }
 
                 // ✅ Cleanup after 5 seconds
@@ -160,33 +163,15 @@
                 }, 5000);
 
             } catch (error) {
-                console.error("Error loading reference:", error);
+                console.error("Error loading application:", error);
                 document.getElementById("refContainer").innerHTML = `
-                <div class="error" style="background: #f8d7da; color: #721c24; padding: 20px; border-radius: 10px;">
-                    Error loading details. <a href="businessloan.html">Try Again</a>
+                <div class="error">
+                    Error loading reference number. Please try again.
                 </div>
             `;
             }
         };
-
-        function printReceipt() {
-            window.print();
-        }
-
-        function showToast(msg, type = 'info') {
-            const toast = document.createElement('div');
-            toast.textContent = msg;
-            toast.style.cssText = `
-            position: fixed; top: 20px; right: 20px; padding: 15px 20px; 
-            background: ${type === 'error' ? '#dc3545' : '#28a745'}; 
-            color: white; border-radius: 8px; z-index: 9999; font-family: Arial; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        `;
-            document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 4000);
-        }
     </script>
-
 
 
 </body>

@@ -567,6 +567,7 @@
                                     <th>Ref</th>
                                     <th>Name</th>
                                     <th>Amount</th>
+                                    <th>Type</th> <!-- ✅ ADD THIS -->
                                     <th>Phone</th>
                                     <th>Action</th>
                                 </tr>
@@ -584,8 +585,9 @@
                                     <th>Ref</th>
                                     <th>Name</th>
                                     <th>Amount</th>
+                                    <th>Type</th> <!-- ✅ ADD THIS -->
                                     <th>Phone</th>
-                                    <th>Status</th>
+                                    <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -601,8 +603,9 @@
                                     <th>Ref</th>
                                     <th>Name</th>
                                     <th>Amount</th>
+                                    <th>Type</th> <!-- ✅ ADD THIS -->
                                     <th>Phone</th>
-                                    <th>Status</th>
+                                    <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -691,6 +694,7 @@
                                 <tr>
                                     <th>Ref</th>
                                     <th>Name</th>
+                                    <th>Type</th> <!-- ✅ ADD THIS -->
                                     <th>Plan</th>
                                     <th>Amount</th>
                                     <th>Action</th>
@@ -708,9 +712,10 @@
                                 <tr>
                                     <th>Ref</th>
                                     <th>Name</th>
+                                    <th>Type</th> <!-- ✅ ADD THIS -->
                                     <th>Plan</th>
                                     <th>Amount</th>
-                                    <th>Status</th>
+                                    <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -725,9 +730,10 @@
                                 <tr>
                                     <th>Ref</th>
                                     <th>Name</th>
+                                    <th>Type</th> <!-- ✅ ADD THIS -->
                                     <th>Plan</th>
                                     <th>Amount</th>
-                                    <th>Status</th>
+                                    <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -899,17 +905,17 @@
                     const id = loan._id || loan.refNo || loan.referenceNo || loan.ref || 'LN-' + Date.now();
 
                     row.innerHTML = `
-            <td data-label="Ref">${loan.refNo || loan.referenceNo || loan.ref || id.slice(-6)}</td>
-            <td data-label="Name">${loan.applicantName || loan.name || loan.fullName || 'N/A'}</td>
-            <td data-label="Amount">₹${(loan.amount || 50000).toLocaleString()}</td>
-            <td data-label="Phone">${extractPhone(loan)}</td>
-            <td data-label="Action">
-                ${loan.status === 'pending' ?
+        <td data-label="Ref">${loan.refNo || loan.referenceNo || loan.ref || id.slice(-6)}</td>
+        <td data-label="Name">${loan.applicantName || loan.name || loan.fullName || 'N/A'}</td>
+        <td data-label="Amount">₹${(loan.amount || 50000).toLocaleString()}</td>
+        <td data-label="Type">${loan.type || loan.loanType || 'Personal'}</td>  <!-- ✅ ADD THIS -->
+        <td data-label="Phone">${extractPhone(loan)}</td>
+        <td data-label="Action">
+            ${loan.status === 'pending' ?
                             actionButtons(id, 'loan') :
                             `<span class="pill ${loan.status}">${capitalize(loan.status)}</span>`
                         }
-            </td>
-        `;
+        </td>  `;
                     return row;
                 }
 
@@ -939,17 +945,18 @@
                     const id = inv._id || inv.refNo || inv.referenceNo || inv.ref || 'INV-' + Date.now();
 
                     row.innerHTML = `
-            <td data-label="Ref">${inv.refNo || inv.referenceNo || inv.ref || id.slice(-6)}</td>
-            <td data-label="Name">${inv.name || inv.fullName || inv.applicantName || 'N/A'}</td>
-            <td data-label="Plan">${inv.plan || inv.investmentPlan || 'SIP'}</td>
-            <td data-label="Amount">₹${(inv.amount || 10000).toLocaleString()}</td>
-            <td data-label="Action">
-                ${inv.status === 'pending' ?
+        <td data-label="Ref">${inv.refNo || inv.referenceNo || inv.ref || id.slice(-6)}</td>
+        <td data-label="Name">${inv.name || inv.fullName || inv.applicantName || 'N/A'}</td>
+        <td data-label="Type">${inv.type || inv.investmentType || 'SIP'}</td>  <!-- ✅ ADD THIS -->
+        <td data-label="Plan">${inv.plan || inv.investmentPlan || 'SIP'}</td>
+        <td data-label="Amount">₹${(inv.amount || 10000).toLocaleString()}</td>
+        <td data-label="Action">
+            ${inv.status === 'pending' ?
                             actionButtons(id, 'inv') :
                             `<span class="pill ${inv.status}">${capitalize(inv.status)}</span>`
                         }
-            </td>
-        `;
+        </td>
+    `;
                     return row;
                 }
 
@@ -1084,7 +1091,7 @@
 
                 // ✅ AUTO LOAD ON PAGE READY
                 document.addEventListener('DOMContentLoaded', function () {
-                    console.log('🚀 Admin Panel Loading...');
+                    console.log('🚀 Admin Panel Loading...');     
                     loadAllData();
                     setInterval(loadAllData, 30000);
                 });

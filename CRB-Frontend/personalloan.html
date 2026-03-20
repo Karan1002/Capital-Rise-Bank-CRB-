@@ -158,53 +158,99 @@
     <div id="toast" class="toast"></div>
 
     <script>
-        function showToast(msg) {
+        function showToast(msg, type = 'success') {
             const toast = document.getElementById('toast');
+            if (!toast) return console.log('Toast:', msg);
             toast.textContent = msg;
+            toast.className = `toast ${type}`;
             toast.style.display = 'block';
             setTimeout(() => toast.style.display = 'none', 2500);
         }
 
-        document.getElementById('personalLoanForm').addEventListener('submit', (e) => {
+        document.getElementById('personalLoanForm').addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            const formData = {
-                refNo: 'PL' + Math.floor(100000 + Math.random() * 900000),
-                name: document.getElementById('fullName').value.trim(),
-                email: document.getElementById('email').value.trim(),
-                phone: document.getElementById('phone').value.trim(),
-                amount: document.getElementById('loanAmount').value,
-                loanType: 'Personal Loan',
-                status: 'Pending',
-                submittedOn: new Date().toISOString(),
-                personalDetails: {
-                    employmentType: document.getElementById('employmentType').value,
-                    monthlyIncome: document.getElementById('monthlyIncome').value,
-                    purpose: document.getElementById('loanPurpose').value.trim()
+            // ✅ Get form data
+            const applicantName = document.getElementById('fullName').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const loanAmount = document.getElementById('loanAmount').value;
+            const employmentType = document.getElementById('employmentType').value;
+            const monthlyIncome = document.getElementById('monthlyIncome').value;
+            const loanPurpose = document.getElementById('loanPurpose').value.trim();
+
+            // ✅ Validation
+            if (!applicantName || !email || !phone || !loanAmount || !employmentType || !monthlyIncome || !loanPurpose) {
+                showToast('Please fill all required fields ⭐', 'error');
+                return;
+            }
+
+            if (!/^[0-9]{10}$/.test(phone)) {
+                showToast('Enter valid 10-digit phone number 📱', 'error');
+                return;
+            }
+
+            if (isNaN(loanAmount) || loanAmount <= 0) {
+                showToast('Enter valid loan amount 💰', 'error');
+                return;
+            }
+
+            showToast('Submitting Personal Loan application...', 'loading');
+
+            try {
+                // 🔥 ✅ MongoDB Ready Data Structure (NO CLIENT refNo!)
+                const loanData = {
+                    applicantName: applicantName,
+                    name: applicantName,
+                    email: email,
+                    phoneNumber: phone,
+                    phone: phone,
+                    mobile: phone,
+                    carBrand: loanPurpose,  // Reuse for loan purpose
+                    amount: parseInt(loanAmount),
+                    employmentType: employmentType,
+                    monthlyIncome: parseInt(monthlyIncome),
+                    loanPurpose: loanPurpose,
+                    loanType: 'Personal Loan',
+                    status: 'Pending',
+                    submittedOn: new Date().toISOString()
+                    // ✅ NO refNo - MongoDB server will generate PLxxxxx!
+                };
+
+                console.log('📤 Personal Loan Data (MongoDB Ready):', loanData);
+
+                // ✅ MongoDB Backend API
+                const response = await fetch('http://localhost:5000/api/loans/car-apply', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(loanData)
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    // ✅ SERVER-GENERATED refNo use करो!
+                    const serverRefNo = result.loan.refNo || result.loan.ref || result.loan.referenceNo;
+
+                    localStorage.setItem('submissionRefNo', serverRefNo);
+                    localStorage.setItem('submissionType', 'Personal Loan');
+
+                    showToast(`✅ SUCCESS! Ref: ${serverRefNo}`);
+                    document.getElementById('personalLoanForm').reset();
+
+                    setTimeout(() => {
+                        window.location.href = 'personalsub.html';
+                    }, 1500);
+                } else {
+                    showToast(result.message || 'Submission failed ❌', 'error');
                 }
-            };
-
-            // Validation
-            if (!formData.name || !formData.email || !formData.phone) {
-                alert('Please fill all required fields');
-                return;
+            } catch (error) {
+                showToast('🔌 Backend server not running on localhost:5000', 'error');
+                console.error('API Error:', error);
             }
-
-            if (!/^[0-9]{10}$/.test(formData.phone)) {
-                alert('Please enter a valid 10-digit phone number');
-                return;
-            }
-
-            // Save to unified localStorage (admin panel compatible)
-            let loans = JSON.parse(localStorage.getItem("lndbLoanApplications") || []);
-            loans.push(formData);
-            localStorage.setItem("lndbLoanApplications", JSON.stringify(loans));
-
-            setTimeout(() => {
-                window.location.href = 'personalsub.html';
-            }, 1500);
         });
     </script>
+
 </body>
 
 </html>

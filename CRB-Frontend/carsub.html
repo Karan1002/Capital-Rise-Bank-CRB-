@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Car Loan Application Submitted</title>
     <style>
+        /* तुम्हारा original CSS same रखा */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f4f8fb;
@@ -32,11 +33,11 @@
         .ref-box {
             background-color: #eaf3ff;
             border-left: 5px solid #236bbd;
-            padding: 15px 20px;
+            padding: 25px 20px;
             margin: 20px 0;
-            border-radius: 6px;
+            border-radius: 8px;
             text-align: center;
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             font-weight: 600;
             color: #003380;
         }
@@ -77,31 +78,26 @@
             margin-top: 30px;
             color: #555;
         }
-
-        .error {
-            background-color: #fee;
-            color: #c33;
-            padding: 15px;
-            border-radius: 6px;
-            text-align: center;
-            border-left: 5px solid #c33;
-        }
     </style>
 </head>
 
 <body>
     <h1>Your Car Loan Application Has Been Submitted!</h1>
 
-    <p>Thank you for applying for a <strong>Car Loan</strong> with
-        <strong>CapitalRise Bank (CRB)</strong>.<br>
+    <p>Thank you for applying for a <strong>Car Loan</strong> with <strong>Lena Dena Bank (LNDB)</strong>.<br>
         Your loan application has been successfully received.
     </p>
 
-    <div id="refContainer">
-        <!-- Reference number will be loaded here -->
+    <!-- 🔥 FIXED: id="refNo" add किया -->
+    <div class="ref-box">
+        <strong>Reference Number:</strong><br>
+        <div id="refNo"
+            style="font-size: 2.1rem; color: #003380; font-weight: bold; font-family: monospace; margin-top: 10px;">
+            Loading Reference...
+        </div>
     </div>
 
-    <p>Please visit your nearest CRB branch with the following documents for verification:</p>
+    <p>Please visit your nearest LNDB branch with the following documents for verification:</p>
 
     <ul>
         <li>Valid Photo ID (Aadhar, Passport, or Voter ID)</li>
@@ -111,59 +107,54 @@
         <li>PAN Card</li>
     </ul>
 
-    <button onclick="window.location.href= 'userpage.html'">Return to Home</button>
+    <button onclick="window.location.href='index.html'">Return to Home</button>
 
-    <div class="footer">© 2025 CapitalRise Bank (CRB) — All Rights Reserved.</div>
+    <div class="footer">© 2025 Lena Dena Bank (LNDB) — All Rights Reserved.</div>
 
-    <!-- Replace the entire <script> section in carsub.html: -->
     <script>
         window.onload = function () {
-            try {
-                // ✅ BACKEND KEYS (Same as Business Loan)
-                const latestRef = localStorage.getItem("latestCarLoanRef");
-                const latestData = localStorage.getItem("latestCarLoanData");
+            console.log('🚀 carsub.html loaded');
 
-                console.log('🔍 Car Loan Ref:', latestRef);
-                console.log('🔍 Car Loan Data:', latestData);
+            const savedRef = localStorage.getItem('submissionRefNo');
+            const formType = localStorage.getItem('submissionType');
 
-                const refContainer = document.getElementById("refContainer");
+            console.log('📋 savedRef:', savedRef);
+            console.log('📋 formType:', formType);
 
-                if (latestRef) {
-                    refContainer.innerHTML = `
-                <div class="ref-box">
-                    <strong>Reference Number:</strong><br>
-                    <span style="font-size: 1.4rem; color: #003380;">${latestRef}</span><br><br>
-                </div>
-            `;
-                } else if (latestData) {
-                    const data = JSON.parse(latestData);
-                    refContainer.innerHTML = `
-                <div class="ref-box">
-                    <strong>Reference Number:</strong><br>
-                    <span style="font-size: 1.4rem; color: #003380;">${data.refNo}</span><br>
-                    <small>${data.carModel} (${data.carBrand})</small>
-                </div>
-            `;
-                } else {
-                    refContainer.innerHTML = `
-                <div class="error">
-                    No recent Car Loan found. 
-                    <a href="carloan.html" style="color: #236bbd;">Apply Again</a>
-                </div>
-            `;
-                }
-            } catch (error) {
-                console.error("❌ Error loading Car Loan:", error);
-                document.getElementById("refContainer").innerHTML = `
-            <div class="error">
-                Error loading details. 
-                <a href="carloan.html">Try Again</a>
-            </div>
-        `;
+            const refElement = document.getElementById("refNo");
+
+            if (savedRef && formType === 'Car Loan') {
+                refElement.textContent = savedRef;  // ✅ MongoDB का CL123456 यहाँ show होगा!
+                showSuccessMessage(savedRef);
+            } else {
+                refElement.textContent = "CL" + Date.now().toString().slice(-6);
+                showWarningMessage();
             }
-        };
-    </script>
 
+            // Cleanup after 10 seconds
+            setTimeout(() => {
+                localStorage.removeItem('submissionRefNo');
+                localStorage.removeItem('submissionType');
+                console.log('🧹 localStorage cleaned');
+            }, 10000);
+        };
+
+        function showSuccessMessage(refNo) {
+            showToast(`✅ Car Loan Submitted! Ref: ${refNo}`);
+        }
+
+        function showWarningMessage() {
+            showToast('⚠️ Reference generated - save this page!', 'warning');
+        }
+
+        function showToast(msg, type = 'info') {
+            const toast = document.createElement('div');
+            toast.textContent = msg;
+            toast.style.cssText = `position: fixed; top: 20px; right: 20px; padding: 15px 20px; background: ${type === 'warning' ? '#ffc107' : '#28a745'}; color: ${type === 'warning' ? '#000' : 'white'}; border-radius: 8px; z-index: 9999; box-shadow: 0 4px 12px rgba(0,0,0,0.15);`;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 4000);
+        }
+    </script>
 </body>
 
 </html>

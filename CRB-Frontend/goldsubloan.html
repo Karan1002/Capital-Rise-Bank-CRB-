@@ -93,7 +93,7 @@
     <h1>Your Gold Loan Application Has Been Submitted!</h1>
 
     <p>Thank you for applying for a <strong>Gold Loan</strong> with
-        <strong>CapitalRise Bank (CRB)</strong>.<br>
+        <strong>Lena Dena Bank (LNDB)</strong>.<br>
         Your loan application has been successfully received.
     </p>
 
@@ -101,7 +101,7 @@
         <!-- Reference number will be loaded here -->
     </div>
 
-    <p>Please carry your gold articles and visit your nearest CRB branch with the following documents:</p>
+    <p>Please carry your gold articles and visit your nearest LNDB branch with the following documents:</p>
 
     <ul>
         <li>Valid Photo ID Proof (Aadhar, Passport, or Voter ID)</li>
@@ -112,51 +112,45 @@
 
     <button onclick="window.location.href='index.html'">Return to Home</button>
 
-    <div class="footer">© 2025 CapitalRise Bank (CRB) — All Rights Reserved.</div>
+    <div class="footer">© 2025 Lena Dena Bank (LNDB) — All Rights Reserved.</div>
 
     <script>
         window.onload = function () {
             try {
-                // ✅ SERVER-GENERATED refNo (standard key)
+                // ✅ SERVER GENERATED RefNo - PRIORITY 1 (MongoDB का GLxxxxx)
                 const savedRef = localStorage.getItem('submissionRefNo');
                 const formType = localStorage.getItem('submissionType') || 'Gold Loan';
 
                 const refContainer = document.getElementById("refContainer");
 
-                if (savedRef) {
-                    // ✅ SERVER refNo show करो (LN123456)
+                // ✅ PRIORITY 1: Server refNo (gold loan form से आया)
+                if (savedRef && formType === 'Gold Loan') {
                     refContainer.innerHTML = `
-                    <div class="ref-box" style="background: linear-gradient(135deg, #ffd700, #ffed4e); padding: 25px; border-radius: 15px; text-align: center; box-shadow: 0 8px 25px rgba(255,215,0,0.3); border: 3px solid #daa520;">
-                        <h2 style="color: #b8860b; margin-bottom: 15px;">✨ ${formType} Submitted Successfully! ✨</h2>
-                        <div style="font-size: 2.2em; background: white; color: #d4af37; font-weight: bold; padding: 15px 30px; border-radius: 10px; display: inline-block; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin: 20px 0;">
-                            Reference Number: <strong>${savedRef}</strong>
-                        </div>
-                        <p style="color: #8b6914; font-size: 1.2em; margin: 20px 0;">
-                            <strong>💰 Gold Loan Application Confirmed</strong><br>
-                            Save this reference for tracking & branch visit.
-                        </p>
-                        <div style="margin-top: 25px;">
-                            <button onclick="printReceipt()" style="background: linear-gradient(45deg, #28a745, #20c997); color: white; border: none; padding: 14px 28px; border-radius: 25px; cursor: pointer; font-size: 1.1em; font-weight: bold; margin-right: 15px; box-shadow: 0 4px 15px rgba(40,167,74,0.4);">
-                                🖨️ Print Gold Receipt
-                            </button>
-                            <a href="index.html" style="background: linear-gradient(45deg, #6c757d, #5a6268); color: white; text-decoration: none; padding: 14px 28px; border-radius: 25px; font-size: 1.1em; font-weight: bold; box-shadow: 0 4px 15px rgba(108,117,125,0.4);">
-                                🏠 Back to Home
-                            </a>
-                        </div>
+                    <div class="ref-box">
+                        Reference Number: <strong>${savedRef}</strong>
                     </div>
                 `;
-                    showSuccessToast(savedRef);
-                } else {
-                    refContainer.innerHTML = `
-                    <div class="error" style="background: linear-gradient(135deg, #f8d7da, #f5c6cb); color: #721c24; padding: 25px; border-radius: 15px; text-align: center; border: 2px solid #dc3545;">
-                        <h3>⚠️ No Recent Gold Loan Application</h3>
-                        <p style="font-size: 1.1em;">Please go back and complete your application</p>
-                        <a href="goldloan.html" style="background: #007bff; color: white; padding: 12px 30px; text-decoration: none; border-radius: 25px; font-weight: bold; display: inline-block; margin-top: 15px;">
-                            💰 Apply for Gold Loan
-                        </a>
-                    </div>
-                `;
-                    showErrorToast();
+                }
+                // ✅ PRIORITY 2: Fallback original logic
+                else {
+                    let applications = JSON.parse(localStorage.getItem("lndbLoanApplications")) || [];
+                    let latestGoldLoan = applications
+                        .filter(app => app.loanType === 'Gold Loan')
+                        .sort((a, b) => new Date(b.submittedOn) - new Date(a.submittedOn))[0];
+
+                    if (latestGoldLoan) {
+                        refContainer.innerHTML = `
+                        <div class="ref-box">
+                            Reference Number: <strong>${latestGoldLoan.refNo}</strong>
+                        </div>
+                    `;
+                    } else {
+                        refContainer.innerHTML = `
+                        <div class="error">
+                            No gold loan applications found. Please apply again.
+                        </div>
+                    `;
+                    }
                 }
 
                 // ✅ Cleanup after 5 seconds
@@ -168,33 +162,12 @@
             } catch (error) {
                 console.error("Error loading application:", error);
                 document.getElementById("refContainer").innerHTML = `
-                <div class="error" style="background: #f8d7da; color: #721c24; padding: 20px; border-radius: 10px; text-align: center;">
-                    Error loading reference. <a href="goldloan.html">Try Again</a>
+                <div class="error">
+                    Error loading reference number. Please try again.
                 </div>
             `;
             }
         };
-
-        function printReceipt() {
-            window.print();
-        }
-
-        function showSuccessToast(refNo) {
-            showToast(`✅ ${localStorage.getItem('submissionType') || 'Gold Loan'} Ref: ${refNo}`);
-        }
-
-        function showErrorToast() {
-            showToast('No application found - please apply again', 'error');
-        }
-
-        function showToast(msg, type = 'success') {
-            const toast = document.getElementById('toast');
-            if (!toast) return console.log('Toast:', msg);
-            toast.textContent = msg;
-            toast.className = `toast ${type}`;
-            toast.style.display = 'block';
-            setTimeout(() => toast.style.display = 'none', 3000);
-        }
     </script>
 
 </body>

@@ -2,16 +2,14 @@
 <html lang="en">
 
 <head>
-       
-    <meta charset="UTF-8" />
-       
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>Select Loan Type</title>
-        <style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Select Loan Type</title>
+
+    <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f8fb;
-            color: #004a8f;
+            background: #f4f8fb;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -21,118 +19,105 @@
 
         form {
             background: white;
-            padding: 28px 36px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 74, 143, 0.1);
-            width: 360px;
-            box-sizing: border-box;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 350px;
             text-align: center;
         }
 
         label {
-            display: block;
-            margin-bottom: 24px;
             font-weight: 700;
-            font-size: 1.3rem;
+            font-size: 20px;
+            display: block;
+            margin-bottom: 20px;
             color: #003380;
         }
 
         select {
             width: 100%;
-            padding: 14px 20px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #004a8f;
-            border-radius: 24px;
-            background-color: transparent;
+            padding: 14px;
+            font-size: 16px;
+            border-radius: 25px;
             border: 2px solid #0052cc;
             cursor: pointer;
-            transition: background-color 0.3s ease, border-color 0.3s ease;
-            appearance: none;
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            background-image:
-                linear-gradient(45deg, transparent 50%, #0052cc 50%),
-                linear-gradient(135deg, #0052cc 50%, transparent 50%),
-                linear-gradient(to right, #ccc, #ccc);
-            background-position:
-                calc(100% - 20px) calc(1em + 2px),
-                calc(100% - 15px) calc(1em + 2px),
-                calc(100% - 25px) 0.5em;
-            background-size: 5px 5px, 5px 5px, 1px 1.5em;
-            background-repeat: no-repeat;
         }
 
-        select:hover {
-            border-color: #003d99;
-            background-color: #e6f0ff;
-        }
-
-        select:focus {
-            outline: none;
-            box-shadow: 0 0 10px #004a8f;
-            border-color: #004a8f;
-            background-color: #dde8ff;
-        }
-
-        option {
-            color: #004a8f;
-            background: white;
-            font-weight: normal;
-        }
-
-        button.btn {
-            margin-top: 24px;
-            background-color: #ffc107;
-            color: #003380;
+        button {
+            margin-top: 20px;
+            background: #ffc107;
             border: none;
-            padding: 14px 32px;
+            padding: 14px 30px;
+            font-size: 18px;
             font-weight: 700;
-            font-size: 1.2rem;
             border-radius: 30px;
             cursor: pointer;
-            box-shadow: 0 5px 15px rgba(255, 193, 7, 0.5);
-            transition: background-color 0.3s ease;
-            display: inline-block;
-            user-select: none;
         }
 
-        button.btn:hover {
-            background-color: #e6b007;
-        }
-
-        button.btn:focus {
-            outline: none;
-            box-shadow: 0 0 15px #ffca28;
+        button:hover {
+            background: #e6b007;
         }
     </style>
 </head>
 
 <body>
+
     <form id="loanForm">
-        <label for="loanType">Select Loan Type:</label>
-        <select id="loanType" name="loanType" aria-label="Select Loan Type" required>
+
+        <label>Select Loan Type</label>
+
+        <select id="loanType" required>
+
             <option value="">--Please choose an option--</option>
-            <option value="personalloan.html">Personal Loan</option>
-            <option value="homeloan.html">Home Loan</option>
-            <option value="businessloan.html">Business Loan</option>
-            <option value="educationloan.html">Education Loan</option>
-            <option value="carloan.html">Car Loan</optio>
-            <option value="goldloan.html">Gold Loan</option>
+
+            <option value="Personal Loan" data-page="personalloan.html">Personal Loan</option>
+
+            <option value="Home Loan" data-page="homeloan.html">Home Loan</option>
+
+            <option value="Business Loan" data-page="businessloan.html">Business Loan</option>
+
+            <option value="Education Loan" data-page="educationloan.html">Education Loan</option>
+
+            <option value="Car Loan" data-page="carloan.html">Car Loan</option>
+
+            <option value="Gold Loan" data-page="goldloan.html">Gold Loan</option>
+
         </select>
-        <button type="submit" class="btn">Apply Now</button>
+
+        <button type="submit">Apply Now</button>
+
     </form>
+
     <script>
-        document.getElementById('loanForm').addEventListener('submit', function (e) {
+
+        document.getElementById("loanForm").addEventListener("submit", function (e) {
+
             e.preventDefault();
-            const loanType = document.getElementById('loanType').value;
+
+            const select = document.getElementById("loanType");
+
+            const loanType = select.value;
+
+            const page = select.options[select.selectedIndex].dataset.page;
+
             if (!loanType) {
-                alert("Please select a loan type.");
+
+                alert("Please select a loan type");
+
                 return;
+
             }
-            window.location.href = loanType;
+
+            // loan type save
+            localStorage.setItem("loanType", loanType);
+
+            // redirect
+            window.location.href = page;
+
         });
+
     </script>
+
 </body>
 
 </html>

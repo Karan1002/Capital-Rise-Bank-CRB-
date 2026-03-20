@@ -118,36 +118,59 @@
     <script>
         window.onload = function () {
             try {
-                let applications = JSON.parse(localStorage.getItem("lndbLoanApplications")) || [];
+                // ✅ SERVER GENERATED RefNo - PRIORITY 1 (MongoDB का PLxxxxx)
+                const savedRef = localStorage.getItem('submissionRefNo');
+                const formType = localStorage.getItem('submissionType') || 'Personal Loan';
 
-                // Find the LATEST Personal Loan application
-                let latestPersonalLoan = applications
-                    .filter(app => app.loanType === 'Personal Loan')
-                    .sort((a, b) => new Date(b.submittedOn) - new Date(a.submittedOn))[0];
+                const refContainer = document.getElementById("refContainer");
 
-                if (latestPersonalLoan) {
-                    document.getElementById("refContainer").innerHTML = `
+                // ✅ PRIORITY 1: Server refNo (personal loan form से आया)
+                if (savedRef && formType === 'Personal Loan') {
+                    refContainer.innerHTML = `
+                    <div class="ref-box">
+                        Reference Number: <strong>${savedRef}</strong>
+                    </div>
+                `;
+                }
+                // ✅ PRIORITY 2: Fallback original logic
+                else {
+                    let applications = JSON.parse(localStorage.getItem("lndbLoanApplications")) || [];
+                    let latestPersonalLoan = applications
+                        .filter(app => app.loanType === 'Personal Loan')
+                        .sort((a, b) => new Date(b.submittedOn) - new Date(a.submittedOn))[0];
+
+                    if (latestPersonalLoan) {
+                        refContainer.innerHTML = `
                         <div class="ref-box">
                             Reference Number: <strong>${latestPersonalLoan.refNo}</strong>
                         </div>
                     `;
-                } else {
-                    document.getElementById("refContainer").innerHTML = `
+                    } else {
+                        refContainer.innerHTML = `
                         <div class="error">
                             No personal loan applications found. Please apply again.
                         </div>
                     `;
+                    }
                 }
+
+                // ✅ Cleanup after 5 seconds
+                setTimeout(() => {
+                    localStorage.removeItem('submissionRefNo');
+                    localStorage.removeItem('submissionType');
+                }, 5000);
+
             } catch (error) {
                 console.error("Error loading application:", error);
                 document.getElementById("refContainer").innerHTML = `
-                    <div class="error">
-                        Error loading reference number. Please try again.
-                    </div>
-                `;
+                <div class="error">
+                    Error loading reference number. Please try again.
+                </div>
+            `;
             }
         };
     </script>
+
 </body>
 
 </html>
