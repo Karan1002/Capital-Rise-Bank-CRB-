@@ -208,7 +208,6 @@
             margin-left: 6px
         }
     </style>
-    <!-- jsPDF (optional, used for quick PDF generation if you want) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 
@@ -445,8 +444,7 @@
 
     <div id="toast" class="toast"></div>
     <script>
-        // ✅ COMPLETE UPDATED SCRIPT - MongoDB Backend + Wizard Form
-        // Tumhara original code + MongoDB integration 🚀
+
 
         const { jsPDF } = window.jspdf || {};
         const STEPS = 5;
@@ -463,7 +461,6 @@
         const toast = document.getElementById('toast');
         const reviewBox = document.getElementById('reviewBox');
 
-        // ✅ Create tabs (same)
         const TAB_LABELS = ['Personal', 'Business', 'Address & Contact', 'Documents', 'Review & Submit'];
         for (let i = 0; i < STEPS; i++) {
             const t = document.createElement('div');
@@ -476,7 +473,6 @@
             tabsEl.appendChild(t);
         }
 
-        // ✅ Helpers
         function q(id) { return document.getElementById(id); }
         function showToast(msg, time = 1600) {
             toast.style.display = 'block';
@@ -485,7 +481,6 @@
         }
         function normalizeDigits(s) { return (s || '').toString().replace(/\D/g, ''); }
 
-        // ✅ State-District Mapping (same - working perfectly)
         const stateDistrictMap = {
             "Maharashtra": ["Mumbai Suburban", "Pune", "Satara", "Kolhapur", "Nashik"],
             "Karnataka": ["Bengaluru Urban", "Mysuru", "Mangaluru"],
@@ -498,7 +493,6 @@
             "Bihar": ["Patna", "Gaya"]
         };
 
-        // ✅ State-District Logic (DOM ready pehle chalao)
         document.addEventListener('DOMContentLoaded', function () {
             const stateSelect = q('state');
             const districtSelect = q('district');
@@ -523,7 +517,7 @@
             });
         });
 
-        // ✅ Aadhaar Masking (same)
+
         const aadVisible = q('aadhaarVisible'), aadFull = q('aadhaarFull');
         if (aadVisible && aadFull) {
             function maskAadhaar(full) {
@@ -542,24 +536,28 @@
                 aadVisible.value = full || '';
             });
         }
-
-        // ✅ File Handling (same - but files optional for JSON)
         function bindFileInput(fileId, nameId, errId) {
-            const input = q(fileId), nameEl = q(nameId), errEl = errId ? q(errId) : null;
+            const input = q(fileId);
+            const nameEl = q(nameId);
+            const errEl = errId ? q(errId) : null;
             if (!input) return;
-            input.addEventListener('change', () => {
+
+            input.addEventListener('change', function (e) {
                 nameEl.textContent = '';
                 if (errEl) errEl.textContent = '';
-                const f = input.files[0];
+                const f = e.target.files[0];
                 if (!f) return;
+
                 nameEl.textContent = f.name + ' (' + Math.round(f.size / 1024) + ' KB)';
+
                 if (f.size > ABS_MAX) {
                     if (errEl) errEl.textContent = 'File too large. Max 10 MB.';
-                    input.value = '';
+                    e.target.value = '';
                     nameEl.textContent = '';
                 }
             });
         }
+
         bindFileInput('photoFile', 'photoName', 'photoError');
         bindFileInput('signFile', 'signName', 'signError');
         bindFileInput('businessRegFile', 'businessRegName', 'businessRegError');
@@ -568,7 +566,50 @@
         bindFileInput('addressProofFile', 'addressProofFileName', 'addressProofFileError');
         bindFileInput('authIdFile', 'authIdName', 'authIdError');
 
-        // ✅ Wizard Step Logic (same)
+        function collectFormData() {
+            return {
+                fullName: q('fullName')?.value || 'N/A',
+                fatherName: q('fatherName')?.value || 'N/A',
+                personalPan: q('personalPan')?.value || 'N/A',
+                businessName: q('businessName')?.value || 'N/A',
+                businessType: q('businessType')?.value || 'N/A',
+                address: q('address')?.value || 'N/A',
+                state: q('state')?.value || 'N/A',
+                district: q('district')?.value || 'N/A',
+                city: q('city')?.value || 'N/A',
+                pincode: q('pincode')?.value || 'N/A',
+                contactPhone: q('contactPhone')?.value || 'N/A',
+                contactEmail: q('contactEmail')?.value || 'N/A',
+                authName: q('authName')?.value || 'N/A',
+                authDesignation: q('authDesignation')?.value || 'N/A'
+            };
+        }
+
+        function populateReview() {
+            const data = collectFormData();
+            reviewBox.innerHTML = `
+        <div style="margin-bottom: 20px; padding: 15px; background: #e8f4fd; border-radius: 8px;">
+            <h5 style="margin: 0 0 10px 0; color: var(--primary);">👤 Personal</h5>
+            <p><strong>Name:</strong> ${data.fullName}</p>
+            <p><strong>PAN:</strong> ${data.personalPan}</p>
+        </div>
+        <div style="margin-bottom: 20px; padding: 15px; background: #f0f9f0; border-radius: 8px;">
+            <h5 style="margin: 0 0 10px 0; color: var(--primary);">🏢 Business</h5>
+            <p><strong>Name:</strong> ${data.businessName}</p>
+            <p><strong>Type:</strong> ${data.businessType}</p>
+        </div>
+        <div style="margin-bottom: 20px; padding: 15px; background: #fff8e1; border-radius: 8px;">
+            <h5 style="margin: 0 0 10px 0; color: var(--primary);">📍 Address</h5>
+            <p><strong>Location:</strong> ${data.city || 'N/A'}, ${data.state || 'N/A'}</p>
+        </div>
+        <div style="padding: 15px; background: #f3e8ff; border-radius: 8px;">
+            <h5 style="margin: 0 0 10px 0; color: var(--primary);">📞 Contact</h5>
+            <p><strong>Phone:</strong> ${data.contactPhone}</p>
+            <p><strong>Email:</strong> ${data.contactEmail}</p>
+        </div>
+    `;
+        }
+
         function goToStep(i) {
             currentStep = i;
             document.querySelectorAll('.step').forEach(s => s.style.display = (parseInt(s.dataset.step) === i ? '' : 'none'));
@@ -604,7 +645,7 @@
 
         prevBtn.addEventListener('click', () => goToStep(Math.max(0, currentStep - 1)));
 
-        // ✅ Review Population
+
         function populateReview() {
             const data = collectFormData();
             reviewBox.innerHTML = `
@@ -630,11 +671,9 @@
     `;
         }
 
-        // 🔥 MAIN SUBMIT FUNCTION - MongoDB Backend + SERVER REF NO
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            // ✅ 1. AGE VALIDATION (same)
             const dob = q('dob')?.value;
             if (dob) {
                 const dobDate = new Date(dob);
@@ -649,7 +688,6 @@
                 }
             }
 
-            // ✅ 2. REQUIRED FIELDS CHECK (same)
             const requiredFields = [
                 'fullName', 'fatherName', 'dob', 'personalPan',
                 'businessName', 'businessType', 'address', 'state',
@@ -666,7 +704,7 @@
                 }
             }
 
-            // ✅ 3. FORMAT VALIDATIONS (same)
+
             if (!/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/i.test(q('personalPan').value)) {
                 showToast('❌ Invalid PAN format');
                 q('personalPan').focus();
@@ -683,12 +721,12 @@
                 return;
             }
 
-            // ✅ 4. SHOW LOADING
+
             submitBtn.disabled = true;
             submitBtn.textContent = '⏳ Submitting...';
 
             try {
-                // 🔥 ✅ 5. NO CLIENT REF NO - SERVER GENERATES ACCxxxxx!
+
                 const formData = {
                     name: q('fullName').value,
                     fullName: q('fullName').value,
@@ -715,15 +753,11 @@
                     authDesignation: q('authDesignation').value,
                     authMobile: normalizeDigits(q('authMobile').value),
                     authEmail: q('authEmail').value,
-                    accountType: q('accountType')?.value || 'Current',
-                    type: q('accountType')?.value || 'Current'
-                    // ✅ NO refNo - server generates ACCxxxxx!
+                    accountType: 'Current Account',
+                    type: 'Current Account'
                 };
 
-                console.log('📤 Current Account Data (NO refNo):', formData);
-
-                // ✅ 6. SEND TO EXISTING ACCOUNTS ENDPOINT
-                const response = await fetch('http://localhost:5000/api/accounts/apply', {
+                const response = await fetch('http://localhost:5000/api/accounts/open', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(formData)
@@ -732,7 +766,7 @@
                 const result = await response.json();
 
                 if (response.ok && result.success) {
-                    // ✅ 7. SERVER-GENERATED REF NO SAVE!
+
                     const serverRefNo = result.account.refNo || result.account.ref || result.account.referenceNo;
 
                     localStorage.setItem('submissionRefNo', serverRefNo);
@@ -757,7 +791,6 @@
             }
         });
 
-        // ✅ Initialize first step
         goToStep(0);
     </script>
 

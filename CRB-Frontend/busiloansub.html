@@ -98,7 +98,6 @@
     </p>
 
     <div id="refContainer">
-        <!-- Reference number will be loaded here -->
     </div>
 
     <p>Please visit your nearest LNDB branch with the following documents for verification:</p>
@@ -115,18 +114,13 @@
     <button onclick="window.location.href='index.html'">Return to Home</button>
 
     <div class="footer">© 2025 Lena Dena Bank (LNDB) — All Rights Reserved.</div>
-
-    <!-- Replace the entire <script> section: -->
     <script>
         window.onload = function () {
             try {
-                // ✅ SERVER GENERATED RefNo - PRIORITY 1 (MongoDB का LNxxxxx)
                 const savedRef = localStorage.getItem('submissionRefNo');
                 const formType = localStorage.getItem('submissionType') || 'Business Loan';
 
                 const refContainer = document.getElementById("refContainer");
-
-                // ✅ PRIORITY 1: Server refNo (Main form से आया)
                 if (savedRef && formType === 'Business Loan') {
                     refContainer.innerHTML = `
                     <div class="ref-box">
@@ -134,7 +128,6 @@
                     </div>
                 `;
                 }
-                // ✅ PRIORITY 2: Fallback localStorage check
                 else {
                     let applications = JSON.parse(localStorage.getItem("lndbLoanApplications")) || [];
                     let latestBusinessLoan = applications
@@ -155,8 +148,6 @@
                     `;
                     }
                 }
-
-                // ✅ Cleanup after 5 seconds
                 setTimeout(() => {
                     localStorage.removeItem('submissionRefNo');
                     localStorage.removeItem('submissionType');

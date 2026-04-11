@@ -2,10 +2,8 @@ const express = require("express");
 const Loan = require("../models/Loan");
 const router = express.Router();
 
-/* =====================================================
-   ✅ FIXED POST /apply - Handles ownerName → applicantName
-===================================================== */
-router.post("/apply", async (req, res) => {
+
+router.post('/car-apply', async (req, res) => {
     try {
         console.log("📥 RAW DATA:", req.body);
 

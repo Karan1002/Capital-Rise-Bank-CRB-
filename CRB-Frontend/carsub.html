@@ -88,7 +88,6 @@
         Your loan application has been successfully received.
     </p>
 
-    <!-- 🔥 FIXED: id="refNo" add किया -->
     <div class="ref-box">
         <strong>Reference Number:</strong><br>
         <div id="refNo"
@@ -124,14 +123,13 @@
             const refElement = document.getElementById("refNo");
 
             if (savedRef && formType === 'Car Loan') {
-                refElement.textContent = savedRef;  // ✅ MongoDB का CL123456 यहाँ show होगा!
+                refElement.textContent = savedRef;  // ✅ 
                 showSuccessMessage(savedRef);
             } else {
                 refElement.textContent = "CL" + Date.now().toString().slice(-6);
                 showWarningMessage();
             }
 
-            // Cleanup after 10 seconds
             setTimeout(() => {
                 localStorage.removeItem('submissionRefNo');
                 localStorage.removeItem('submissionType');

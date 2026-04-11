@@ -124,138 +124,43 @@
     <div class="footer">© 2025 CapitalRise Bank (CRB)— All Rights Reserved.</div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script>
-        (function () {
-            const refEl = document.getElementById('refNo');
-            const savedRef = localStorage.getItem('submissionRefNo');  // ✅ STANDARD KEY
-            const formType = localStorage.getItem('submissionType') || 'Current Account';
+   <script>
+document.addEventListener('DOMContentLoaded', function() {
+    const refEl = document.getElementById('refNo');
+    const savedRef = localStorage.getItem('submissionRefNo');
+    
+    if(savedRef && refEl) {
+        refEl.textContent = savedRef;  // ACC082056
+        refEl.style.color = '#0d6efd'; // Sirf Green color
+        refEl.style.fontSize = '1.4rem';
+        refEl.style.fontWeight = 'bold';
+    }
+    
+    // PDF Button
+    document.getElementById('downloadPDF').addEventListener('click', function() {
+        const ref = savedRef || "CA" + Date.now().toString().slice(-6);
+        const formData = JSON.parse(localStorage.getItem('formSubmissionData') || '{}');
+        
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF();
+        pdf.text("CAPITALRISE BANK", 105, 30, { align: 'center' });
+        pdf.text(`Ref: ${ref}`, 105, 50, { align: 'center' });
+        pdf.text(`Name: ${formData.fullName || 'N/A'}`, 20, 80);
+        pdf.text(`Business: ${formData.businessName || 'N/A'}`, 20, 90);
+        pdf.save(`CRB_${ref}.pdf`);
+        
+        this.textContent = '✅ PDF Ready!';
+        setTimeout(() => this.textContent = 'Download PDF', 2000);
+    });
+    
+    document.getElementById('returnHome').onclick = () => {
+        window.location.href = 'userpage.html';
+    };
+});
+</script>
 
-            // ✅ DISPLAY SERVER REF NO
-            if (refEl) {
-                refEl.textContent = savedRef || "ACC" + Date.now().toString().slice(-6);
-            }
 
-            // ✅ PDF GENERATOR - Uses SERVER data structure
-            async function buildAndDownloadPDF() {
-                const ref = savedRef || ("ACC" + Date.now().toString().slice(-6));
-                const { jsPDF } = window.jspdf;
 
-                if (!jsPDF) {
-                    alert('PDF library not loaded!');
-                    return;
-                }
-
-                const pdf = new jsPDF("p", "mm", "a4");
-                let y = 15;
-
-                // ✅ Use SERVER response format (flat structure)
-                const record = {
-                    name: savedRef ? 'From Server' : 'Demo',
-                    fullName: 'Karan Sakhat',  // Fallback
-                    fatherName: 'Demo Father',
-                    dob: '01/01/1995',
-                    personalPan: 'ABCDE1234F',
-                    businessName: 'Demo Business',
-                    businessType: 'Retail',
-                    address: 'Demo Address, Karjat',
-                    state: 'Maharashtra',
-                    district: 'Raigad',
-                    city: 'Karjat',
-                    pincode: '410201',
-                    phone: savedRef || '9876543210',
-                    contactEmail: 'demo@lndb.com'
-                };
-
-                // PDF generation logic (same as before but simplified)
-                function sectionTitle(title) {
-                    if (y > 270) { pdf.addPage(); y = 15; }
-                    pdf.setFillColor(35, 107, 189);
-                    pdf.setTextColor(255, 255, 255);
-                    pdf.rect(10, y, 190, 8, "F");
-                    pdf.setFont("helvetica", "bold");
-                    pdf.setFontSize(12);
-                    pdf.text(title, 14, y + 5);
-                    y += 12;
-                    pdf.setTextColor(0, 0, 0);
-                }
-
-                function addField(title, value) {
-                    if (y > 270) { pdf.addPage(); y = 15; }
-                    pdf.setFont("helvetica", "bold");
-                    pdf.setFontSize(10);
-                    pdf.text(title, 14, y);
-                    pdf.setFont("helvetica", "normal");
-                    pdf.text(":", 60, y);
-                    pdf.text(value || "N/A", 65, y);
-                    y += 8;
-                    pdf.setDrawColor(200, 200, 200);
-                    pdf.line(10, y, 200, y);
-                    y += 3;
-                }
-
-                // HEADER
-                pdf.setFont("helvetica", "bold");
-                pdf.setFontSize(18);
-                pdf.text("LENA DENA BANK (LNDB)", 105, y, null, null, "center");
-                y += 10;
-                pdf.setFontSize(14);
-                pdf.text(`${formType} Opening Application`, 105, y, null, null, "center");
-                y += 15;
-
-                // REFERENCE
-                addField("Reference Number", ref);
-                addField("Application Date", new Date().toLocaleDateString('en-IN'));
-
-                // APPLICANT
-                sectionTitle("Applicant Details");
-                addField("Full Name", record.fullName);
-                addField("Father Name", record.fatherName);
-                addField("Date of Birth", record.dob);
-                addField("PAN Number", record.personalPan);
-
-                // BUSINESS
-                sectionTitle("Business Details");
-                addField("Business Name", record.businessName);
-                addField("Business Type", record.businessType);
-
-                // ADDRESS
-                sectionTitle("Address Details");
-                addField("Address", record.address);
-                addField("City", `${record.city}, ${record.district}`);
-                addField("State", record.state);
-                addField("Pincode", record.pincode);
-
-                // CONTACT
-                sectionTitle("Contact Details");
-                addField("Phone", record.phone);
-                addField("Email", record.contactEmail);
-
-                pdf.save(`LNDB_${formType}_${ref}.pdf`);
-            }
-
-            // BUTTON EVENTS
-            document.getElementById("downloadPDF")?.addEventListener("click", function () {
-                this.disabled = true;
-                this.textContent = "Generating PDF... ⏳";
-                buildAndDownloadPDF().finally(() => {
-                    this.disabled = false;
-                    this.textContent = "Download Application PDF";
-                });
-            });
-
-            document.getElementById("returnHome")?.onclick = () => {
-                window.location.href = 'index.html';
-            };
-
-            // ✅ CLEANUP
-            setTimeout(() => {
-                localStorage.removeItem('submissionRefNo');
-                localStorage.removeItem('submissionType');
-            }, 5000);
-
-            console.log("✅ Current Account Submission Ready. Ref:", savedRef);
-        })();
-    </script>
 
 
 

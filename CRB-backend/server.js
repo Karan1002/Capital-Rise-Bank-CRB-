@@ -1,5 +1,3 @@
-// server.js - SMART LOAN TYPE HANDLING (carBrand NULL for Business Loan)
-
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
@@ -8,9 +6,7 @@ require("dotenv").config();
 
 const app = express();
 
-// =====================================================
-// CORS - ALL HTML FILES COMPATIBLE
-// =====================================================
+
 app.use(cors({
   origin: [
     "http://localhost:3000",
@@ -29,9 +25,7 @@ app.use(cors({
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
-// =====================================================
-// UNIVERSAL HELPERS
-// =====================================================
+
 const sanitizeStatus = (statusValue) => {
   if (!statusValue) return "pending";
   const cleanStatus = statusValue.toString().toLowerCase().trim();
@@ -50,11 +44,9 @@ const getAccountType = (type, accountType, account_type) => {
   return accountType || account_type || type || "Savings";
 };
 
-// 🔥 NEW HELPER - SMART FIELD CLEANING
 const cleanLoanFields = (loanType, data) => {
   const typeLower = loanType.toLowerCase();
 
-  // Business/Personal/Home/Education → Clear Car fields
   if (['business', 'personal', 'home', 'education'].some(t => typeLower.includes(t))) {
     data.carBrand = null;
     data.carModel = null;
@@ -62,14 +54,12 @@ const cleanLoanFields = (loanType, data) => {
     data.carDetails = null;
   }
 
-  // Gold Loan → Clear Car fields
   if (typeLower.includes('gold')) {
     data.carBrand = null;
     data.carModel = null;
     data.carPrice = null;
   }
 
-  // Car Loan → Clear Gold/Education fields
   if (typeLower.includes('car')) {
     data.goldWeight = null;
     data.goldPurity = null;
@@ -79,8 +69,6 @@ const cleanLoanFields = (loanType, data) => {
   return data;
 };
 
-// =====================================================
-// ULTRA FLEXIBLE SCHEMAS (Unchanged)
 const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true, lowercase: true },
@@ -136,7 +124,9 @@ const loanSchema = new mongoose.Schema({
   carBrand: String,
   amount: { type: Number, default: 50000 },
   status: { type: String, default: "pending", enum: ["pending", "approved", "rejected"] },
-  ref: String, refNo: String, referenceNo: String,
+  ref: String,
+  refNo: String,
+  referenceNo: String,
   appliedAt: { type: Date, default: Date.now },
   carModel: String,
   carPrice: String,
@@ -149,8 +139,10 @@ const loanSchema = new mongoose.Schema({
   loanPurpose: String,
   loan_type: String,
   loanType: String
-}, { strict: false });
-
+}, {
+  strict: false,
+  collection: "loans"
+});
 const cardSchema = new mongoose.Schema({
   name: { type: String, required: true },
   fullName: String,
@@ -182,16 +174,13 @@ const investmentSchema = new mongoose.Schema({
   appliedAt: { type: Date, default: Date.now }
 }, { strict: false });
 
-// =====================================================
-// MODELS
+
 const User = mongoose.models.User || mongoose.model("User", userSchema);
 const Account = mongoose.models.Account || mongoose.model("Account", accountSchema);
-const Loan = mongoose.models.Loan || mongoose.model("Loan", loanSchema);
+const Loan = mongoose.models.Loan || mongoose.model("Loan", loanSchema, "loans");
 const Card = mongoose.models.Card || mongoose.model("Card", cardSchema);
 const Investment = mongoose.models.Investment || mongoose.model("Investment", investmentSchema);
 
-// =====================================================
-// AUTH ENDPOINTS (Unchanged)
 app.post("/api/auth/register", async (req, res) => {
   try {
     console.log("👤 REGISTER:", req.body);
@@ -240,11 +229,9 @@ app.post("/api/auth/login", async (req, res) => {
   }
 });
 
-// =====================================================
-// 🔥 SMART LOAN ENDPOINT (carBrand NULL for Business Loan)
 app.post("/api/loans/car-apply", async (req, res) => {
   try {
-    console.log("🚗 LOAN FORM (Smart Type Handling):", req.body);
+    console.log("LOAN FORM (Smart Type Handling):", req.body);
     const {
       applicantName, name, fullName, email, phoneNumber, phone, mobile,
       type, loanType, loan_type, carBrand, amount, status, businessName, businessType,
@@ -252,14 +239,11 @@ app.post("/api/loans/car-apply", async (req, res) => {
     } = req.body;
     const refNo = "LN" + Date.now().toString().slice(-6);
 
-    // 🔥 LOAN TYPE DETECTION
     const loanTypeFinal = getLoanType(type, loanType, loan_type);
     console.log("📋 Detected Loan Type:", loanTypeFinal);
 
-    // 🔥 SMART FIELD CLEANING
     let cleanedExtra = cleanLoanFields(loanTypeFinal, { ...extra, carBrand });
 
-    // Business Loan me carBrand ko explicitly NULL karo
     if (loanTypeFinal.toLowerCase().includes('business')) {
       cleanedExtra.carBrand = null;
       console.log("🧹 Business Loan → carBrand set to NULL");
@@ -271,7 +255,7 @@ app.post("/api/loans/car-apply", async (req, res) => {
       email: email || "",
       phone: getPhoneNumber(phoneNumber, phone, mobile),
       type: loanTypeFinal,
-      carBrand: cleanedExtra.carBrand || null,  // 🔥 Smart handling
+      carBrand: cleanedExtra.carBrand || null,
       amount: parseInt(amount) || 50000,
       status: sanitizeStatus(status),
       ref: refNo, refNo: refNo, referenceNo: refNo,
@@ -279,15 +263,15 @@ app.post("/api/loans/car-apply", async (req, res) => {
     });
 
     await loan.save();
-    console.log("✅ LOAN SAVED:", refNo);
-    console.log("📊 Final Data → carBrand:", loan.carBrand, "businessName:", loan.businessName);
+    console.log("LOAN SAVED:", refNo);
+    console.log("Final Data → carBrand:", loan.carBrand, "businessName:", loan.businessName);
 
     res.json({
       success: true,
       message: `${loanTypeFinal} submitted successfully! 🎉`,
       refNo,
       loanType: loanTypeFinal,
-      carBrand: loan.carBrand,  // Show what got saved
+      carBrand: loan.carBrand, 
       loan
     });
   } catch (error) {
@@ -296,31 +280,102 @@ app.post("/api/loans/car-apply", async (req, res) => {
   }
 });
 
-// =====================================================
-// OTHER ENDPOINTS (Unchanged)
-app.post("/api/accounts/apply", async (req, res) => {
+app.post('/api/accounts/open', async (req, res) => {
+  console.log('🎯 FORM DATA RECEIVED:', req.body);
+
   try {
-    console.log("🏦 ACCOUNT FORM:", req.body);
-    const { name, fullName, email, phone, mobile, contactMobile, accountType, type, status, ...extra } = req.body;
-    const refNo = "ACC" + Date.now().toString().slice(-6);
+    const refNo = `ACC${Date.now().toString().slice(-6)}`;
+
+    const rawAccountType = (
+      req.body.accountType ||
+      req.body.type ||
+      ''
+    ).toString().trim();
+
+    let normalizedAccountType = 'Savings Account';
+
+    if (/current/i.test(rawAccountType)) {
+      normalizedAccountType = 'Current Account';
+    } else if (/joint/i.test(rawAccountType)) {
+      normalizedAccountType = 'Joint Savings';
+    } else if (/saving/i.test(rawAccountType)) {
+      normalizedAccountType = 'Savings Account';
+    } else if (
+      req.body.businessName ||
+      req.body.businessType ||
+      req.body.authName ||
+      req.body.authDesignation
+    ) {
+      normalizedAccountType = 'Current Account';
+    }
 
     const account = new Account({
-      name: name || fullName,
-      fullName: fullName || name,
-      email: email || "",
-      phone: getPhoneNumber(null, phone, mobile, contactMobile),
-      type: getAccountType(type, accountType),
-      status: sanitizeStatus(status),
-      ref: refNo, refNo, referenceNo: refNo,
-      ...extra
+      name: req.body.fullName || req.body.name || '',
+      fullName: req.body.fullName || req.body.name || '',
+      fatherName: req.body.fatherName || '',
+      motherName: req.body.motherName || '',
+      dob: req.body.dob ? new Date(req.body.dob) : null,
+      gender: req.body.gender || '',
+      maritalStatus: req.body.maritalStatus || '',
+
+      email: req.body.contactEmail || req.body.email || '',
+      phone: req.body.phone || req.body.mobile || '',
+      mobile: req.body.mobile || req.body.phone || '',
+
+      address: req.body.address || req.body.resAddress || '',
+      state: req.body.state || '',
+      district: req.body.district || '',
+      city: req.body.city || req.body.resCity || '',
+      pinCode: req.body.pincode || req.body.pinCode || req.body.resPincode || '',
+
+      aadhaar: req.body.aadhaarFull || req.body.aadhar || req.body.aadhaar || '',
+      pan: req.body.personalPan || req.body.pan || '',
+
+      branchName: req.body.branch || '',
+      nomineeName: req.body.nomineeName || '',
+      nomineeRelation: req.body.nomineeRelation || '',
+      nomineeDob: req.body.nomineeDOB ? new Date(req.body.nomineeDOB) : null,
+
+      businessName: req.body.businessName || '',
+      businessType: req.body.businessType || '',
+      registrationNumber: req.body.registrationNumber || '',
+      natureOfBusiness: req.body.natureOfBusiness || '',
+      gstNumber: req.body.gstNumber || '',
+      panCompany: req.body.panCompany || '',
+
+      authName: req.body.authName || '',
+      authDesignation: req.body.authDesignation || '',
+      authMobile: req.body.authMobile || '',
+      authEmail: req.body.authEmail || '',
+
+      website: req.body.website || '',
+
+      accountType: normalizedAccountType,
+      type: normalizedAccountType,
+      status: 'pending',
+      refNo,
+      referenceNo: refNo
     });
 
     await account.save();
-    console.log("✅ ACCOUNT SAVED:", refNo);
-    res.json({ success: true, message: "Account application submitted!", refNo, account });
+
+    console.log('✅ SAVED:', refNo, normalizedAccountType);
+
+    res.json({
+      success: true,
+      message: `${normalizedAccountType} created successfully`,
+      account: {
+        refNo,
+        referenceNo: refNo,
+        accountType: normalizedAccountType
+      }
+    });
   } catch (error) {
-    console.error("Account error:", error);
-    res.status(500).json({ success: false, message: "Server error!" });
+    console.error('❌ ERROR:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error: ' + error.message
+    });
   }
 });
 
@@ -378,8 +433,6 @@ app.post("/api/investments/apply", async (req, res) => {
   }
 });
 
-// =====================================================
-// ADMIN DASHBOARD ENDPOINTS
 app.get("/api/accounts", async (req, res) => {
   const accounts = await Account.find().sort({ appliedAt: -1 }).limit(100);
   res.json({ success: true, count: accounts.length, data: accounts });
@@ -400,8 +453,101 @@ app.get("/api/investments", async (req, res) => {
   res.json({ success: true, count: investments.length, data: investments });
 });
 
-// =====================================================
-// DB CONNECTION
+
+app.put("/api/accounts/update/:id", async (req, res) => {
+  try {
+    const { status } = req.body;
+
+    const updated = await Account.findByIdAndUpdate(
+      req.params.id,
+      { status },
+      { new: true }
+    );
+
+    if (!updated) {
+      return res.status(404).json({ success: false, message: "Account not found" });
+    }
+
+    res.json({ success: true, message: "Account updated", data: updated });
+
+  } catch (err) {
+    console.error("❌ Account Update Error:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+
+// LOAN
+app.put("/api/loans/update/:id", async (req, res) => {
+  try {
+    const { status } = req.body;
+
+    const updated = await Loan.findByIdAndUpdate(
+      req.params.id,
+      { status },
+      { new: true }
+    );
+
+    if (!updated) {
+      return res.status(404).json({ success: false, message: "Loan not found" });
+    }
+
+    res.json({ success: true, message: "Loan updated", data: updated });
+
+  } catch (err) {
+    console.error("❌ Loan Update Error:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+
+// CARD
+app.put("/api/cards/update/:id", async (req, res) => {
+  try {
+    const { status } = req.body;
+
+    const updated = await Card.findByIdAndUpdate(
+      req.params.id,
+      { status },
+      { new: true }
+    );
+
+    if (!updated) {
+      return res.status(404).json({ success: false, message: "Card not found" });
+    }
+
+    res.json({ success: true, message: "Card updated", data: updated });
+
+  } catch (err) {
+    console.error("❌ Card Update Error:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+
+// INVESTMENT
+app.put("/api/investments/update/:id", async (req, res) => {
+  try {
+    const { status } = req.body;
+
+    const updated = await Investment.findByIdAndUpdate(
+      req.params.id,
+      { status },
+      { new: true }
+    );
+
+    if (!updated) {
+      return res.status(404).json({ success: false, message: "Investment not found" });
+    }
+
+    res.json({ success: true, message: "Investment updated", data: updated });
+
+  } catch (err) {
+    console.error("❌ Investment Update Error:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
 const connectDB = async () => {
   try {
     const MONGO_URI = process.env.MONGO_URI || "mongodb://localhost:27017/crb-bank";

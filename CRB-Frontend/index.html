@@ -157,13 +157,11 @@
 </head>
 
 <body>
-    <!-- LEFT SIDE -->
     <div class="left-panel">
         <h1>Welcome to<br>CRB Smart Banking<br><small style="font-size:17px;font-weight:400;">Fast • Secure •
                 Trusted</small></h1>
     </div>
 
-    <!-- RIGHT SIDE LOGIN & REGISTER -->
     <div class="right-panel">
         <div id="loginModal" class="modal active">
             <h2>🔐 Login</h2>
@@ -202,7 +200,6 @@
     <script>
         const API_BASE = 'http://localhost:5000/api';
 
-        // ✅ FIXED ENDPOINTS - SERVER SE MATCH KARTE HAIN
         const REGISTER_ENDPOINT = `${API_BASE}/auth/register`;
         const LOGIN_ENDPOINT = `${API_BASE}/auth/login`;
 
@@ -228,7 +225,6 @@
             loginModal.classList.add("active");
         };
 
-        // Loading state function
         function setLoading(button, isLoading) {
             const btn = button;
             if (isLoading) {
@@ -240,7 +236,6 @@
             }
         }
 
-        // ✅ PERFECT REGISTER FORM
         document.getElementById('registerForm').onsubmit = async function (e) {
             e.preventDefault();
 
@@ -248,9 +243,8 @@
             const email = document.getElementById('registerEmail').value.trim();
             const password = document.getElementById('registerPassword').value;
 
-            // Validation
             if (!name || !email || !password || password.length < 6) {
-                alert('❌ Name, valid email aur 6+ characters password daalo!');
+                alert(' Please enter name, valid email, and 6+ characters password!');
                 return;
             }
 
@@ -258,7 +252,7 @@
             setLoading(registerBtn, true);
 
             try {
-                console.log('📤 Registering:', { name, email });
+                console.log(' Registering:', { name, email });
 
                 const res = await fetch(REGISTER_ENDPOINT, {
                     method: 'POST',
@@ -267,27 +261,26 @@
                 });
 
                 const data = await res.json();
-                console.log('📥 Register response:', data);
+                console.log('Register response:', data);
 
                 if (data.success) {
-                    alert('✅ Registration successful! Ab login karo');
+                    alert('Registration successful! Ab login karo');
                     trackUserLogin(data.user, 'user');
                     registerModal.classList.remove('active');
                     loginModal.classList.add('active');
                     document.getElementById('registerForm').reset();
                     document.getElementById('loginEmail').value = email;
                 } else {
-                    alert('❌ ' + (data.message || 'Registration failed'));
+                    alert('' + (data.message || 'Registration failed'));
                 }
             } catch (err) {
-                console.error('❌ Register error:', err);
-                alert('❌ Server error! Backend chal raha hai? (node server.js)');
+                console.error('Register error:', err);
+                alert('Server error!');
             } finally {
                 setLoading(registerBtn, false);
             }
         };
 
-        // ✅ PERFECT LOGIN FORM
         document.getElementById('loginForm').onsubmit = async function (e) {
             e.preventDefault();
 
@@ -296,8 +289,7 @@
 
             console.log('🔍 Login attempt:', email);
 
-            // Admin fallback
-            if (email === "Karan" && password === "Karan@12345") {
+            if (email === "karan@admin.com" && password === "Karan@12345") {
                 trackAdminLogin("Karan");
                 localStorage.setItem("lndbCurrentAdmin", "Karan");
                 window.location.href = "admin.html";
