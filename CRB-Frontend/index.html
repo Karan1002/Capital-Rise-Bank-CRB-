@@ -318,7 +318,7 @@
                 }
             } catch (err) {
                 console.error('❌ Login error:', err);
-                alert('❌ Server error! Backend check karo (http://localhost:5000)');
+                console.error('❌ Login error:', err);
             } finally {
                 setLoading(loginBtn, false);
             }
