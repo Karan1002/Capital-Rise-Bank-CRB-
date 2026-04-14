@@ -155,6 +155,7 @@
     <div id="toast" class="toast"></div>
 
     <script>
+        const API_BASE = 'https://capital-rise-bank-crb-1.onrender.com/api';
         function showToast(msg, type = 'success') {
             const toast = document.getElementById('toast');
             if (!toast) return console.log('Toast:', msg);
