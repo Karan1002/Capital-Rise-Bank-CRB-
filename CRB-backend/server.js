@@ -547,24 +547,43 @@ app.put("/api/investments/update/:id", async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
   }
 });
-
 const connectDB = async () => {
   try {
-    const MONGO_URI = process.env.MONGO_URI || "mongodb://localhost:27017/crb-bank";
-    await mongoose.connect(MONGO_URI);
+    const MONGO_URI = process.env.MONGO_URI;
+
+    if (!MONGO_URI) {
+      throw new Error("MONGO_URI not found in .env file");
+    }
+
+    await mongoose.connect(MONGO_URI, {
+      dbName: "lndb"
+    });
+
     console.log("✅ MongoDB Connected!");
+    console.log("📦 Database:", mongoose.connection.name);
+    console.log("📡 Host:", mongoose.connection.host);
   } catch (error) {
     console.error("❌ Mongo Error:", error.message);
-    setTimeout(connectDB, 5000);
+    throw error;
   }
 };
 
 const PORT = process.env.PORT || 5000;
 
-connectDB().then(() => {
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`🚀 Server: http://localhost:${PORT}`);
-    console.log(`✅ SMART LOAN HANDLING - Business Loan me carBrand = NULL!`);
-    console.log(`📱 All 11 HTML forms compatible!`);
-  });
-});
+const startServer = async () => {
+  try {
+    await connectDB();
+
+    app.listen(PORT, "0.0.0.0", () => {
+      console.log(`🚀 Server: http://localhost:${PORT}`);
+      console.log("✅ SMART LOAN HANDLING - Business Loan me carBrand = NULL!");
+      console.log("📱 All 11 HTML forms compatible!");
+    });
+  } catch (error) {
+    console.error("❌ Server start failed:", error.message);
+    console.log("🔄 Retrying in 5 seconds...");
+    setTimeout(startServer, 5000);
+  }
+};
+
+startServer();
