@@ -485,8 +485,7 @@
             console.log('📤 Savings Account Data (NO refNo):', formData);
 
             try {
-                // Backend API Call - LNDB MongoDB Backend
-                const response = await fetch('http://localhost:5000/api/accounts/open', {
+               const response = await fetch('https://capital-rise-bank-crb-1.onrender.com/api/accounts/open', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'

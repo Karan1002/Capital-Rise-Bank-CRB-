@@ -229,7 +229,7 @@
                     console.log('📤 Business Loan Data (NO refNo):', loanData);
 
                     // ✅ Use LOCAL server (same as other forms)
-                    const response = await fetch('http://localhost:5000/api/loans/car-apply', {
+                    const response = await fetch('https://capital-rise-bank-crb-1.onrender.com/api/loans/car-apply', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(loanData)

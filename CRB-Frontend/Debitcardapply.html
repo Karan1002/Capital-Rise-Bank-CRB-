@@ -222,7 +222,7 @@
 
                     console.log('📤 Debit Card Data (NO refNo):', debitData);
 
-                    const response = await fetch('http://localhost:5000/api/cards/apply', {
+                    const response = await fetch('https://capital-rise-bank-crb-1.onrender.com/api/cards/apply', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(debitData)
