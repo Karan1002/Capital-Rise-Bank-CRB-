@@ -153,103 +153,104 @@
                 transform: rotate(360deg);
             }
         }
+
         @media (max-width: 992px) {
-    .left-panel {
-        width: 50%;
-        padding: 30px 20px;
-        background-size: auto 100%;
-        background-repeat: no-repeat;
-        background-position: center;
-    }
+            .left-panel {
+                width: 50%;
+                padding: 30px 20px;
+                background-size: auto 100%;
+                background-repeat: no-repeat;
+                background-position: center;
+            }
 
-    .right-panel {
-        width: 50%;
-        padding: 24px 16px;
-    }
+            .right-panel {
+                width: 50%;
+                padding: 24px 16px;
+            }
 
-    .left-panel h1 {
-        font-size: 28px;
-        line-height: 36px;
-    }
+            .left-panel h1 {
+                font-size: 28px;
+                line-height: 36px;
+            }
 
-    .modal {
-        width: 100%;
-        max-width: 320px;
-    }
-}
+            .modal {
+                width: 100%;
+                max-width: 320px;
+            }
+        }
 
-@media (max-width: 768px) {
-    .left-panel {
-        width: 50%;
-        padding: 20px 12px;
-        background-position: center;
-        background-size: auto 100%;
-        background-repeat: no-repeat;
-    }
+        @media (max-width: 768px) {
+            .left-panel {
+                width: 50%;
+                padding: 20px 12px;
+                background-position: center;
+                background-size: auto 100%;
+                background-repeat: no-repeat;
+            }
 
-    .right-panel {
-        width: 50%;
-        padding: 20px 12px;
-    }
+            .right-panel {
+                width: 50%;
+                padding: 20px 12px;
+            }
 
-    .left-panel h1 {
-        font-size: 22px;
-        line-height: 30px;
-    }
+            .left-panel h1 {
+                font-size: 22px;
+                line-height: 30px;
+            }
 
-    .modal {
-        max-width: 100%;
-    }
+            .modal {
+                max-width: 100%;
+            }
 
-    input {
-        font-size: 15px;
-        padding: 10px 40px 10px 12px;
-    }
+            input {
+                font-size: 15px;
+                padding: 10px 40px 10px 12px;
+            }
 
-    button {
-        padding: 11px;
-        font-size: 14px;
-    }
-}
+            button {
+                padding: 11px;
+                font-size: 14px;
+            }
+        }
 
-@media (max-width: 480px) {
-    .left-panel {
-        width: 48%;
-        padding: 16px 10px;
-        background-size: auto 100%;
-        background-repeat: no-repeat;
-        background-position: center;
-    }
+        @media (max-width: 480px) {
+            .left-panel {
+                width: 48%;
+                padding: 16px 10px;
+                background-size: auto 100%;
+                background-repeat: no-repeat;
+                background-position: center;
+            }
 
-    .right-panel {
-        width: 52%;
-        padding: 16px 10px;
-    }
+            .right-panel {
+                width: 52%;
+                padding: 16px 10px;
+            }
 
-    .left-panel h1 {
-        font-size: 18px;
-        line-height: 24px;
-    }
+            .left-panel h1 {
+                font-size: 18px;
+                line-height: 24px;
+            }
 
-    h2 {
-        font-size: 20px;
-        margin-bottom: 14px;
-    }
+            h2 {
+                font-size: 20px;
+                margin-bottom: 14px;
+            }
 
-    input {
-        font-size: 14px;
-        padding: 10px 38px 10px 10px;
-    }
+            input {
+                font-size: 14px;
+                padding: 10px 38px 10px 10px;
+            }
 
-    button {
-        font-size: 14px;
-        padding: 10px;
-    }
+            button {
+                font-size: 14px;
+                padding: 10px;
+            }
 
-    .modal {
-        max-width: 100%;
-    }
-}
+            .modal {
+                max-width: 100%;
+            }
+        }
     </style>
 </head>
 
@@ -341,7 +342,7 @@
             const password = document.getElementById('registerPassword').value;
 
             if (!name || !email || !password || password.length < 6) {
-                alert(' Please enter name, valid email, and 6+ characters password!');
+                alert('Please enter your name, a valid email, and a password with at least 6 characters.');
                 return;
             }
 
@@ -361,18 +362,18 @@
                 console.log('Register response:', data);
 
                 if (data.success) {
-                    alert('Registration successful! Ab login karo');
+                    alert('Registration successful! Please log in now.');
                     trackUserLogin(data.user, 'user');
                     registerModal.classList.remove('active');
                     loginModal.classList.add('active');
                     document.getElementById('registerForm').reset();
                     document.getElementById('loginEmail').value = email;
                 } else {
-                    alert('' + (data.message || 'Registration failed'));
+                    alert(data.message || 'Registration failed');
                 }
             } catch (err) {
                 console.error('Register error:', err);
-                alert('Server error!');
+                alert('Server error. Please try again later.');
             } finally {
                 setLoading(registerBtn, false);
             }
@@ -411,7 +412,7 @@
                     localStorage.setItem('lndbCurrentUser', JSON.stringify(data.user));
                     window.location.href = 'userpage.html';
                 } else {
-                    alert('❌ ' + (data.message || 'Login failed') + '\n💡 Tip: Same password use karo!');
+                    alert('❌ ' + (data.message || 'Login failed') + '\n💡 Tip: Use the same password you registered with.');
                 }
             } catch (err) {
                 console.error('❌ Login error:', err);
