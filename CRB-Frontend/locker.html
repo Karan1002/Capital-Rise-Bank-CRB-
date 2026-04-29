@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CRB Locker Facility</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary: #236bbd;
+            --primary-dark: #174f85;
+            --bg-light: #f4f8fb;
+            --border: #d8dee6;
+            --text-dark: #003380;
+            --text-light: #555;
+            --white: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f4f8fb, #e9f1ff);
+            color: var(--text-dark);
+            min-height: 100vh;
+            padding: 25px 12px;
+        }
+
+        .container {
+            max-width: 1150px;
+            margin: 0 auto;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #236bbd, #174f85);
+            color: white;
+            border-radius: 18px;
+            padding: 35px 25px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0, 74, 143, 0.18);
+            margin-bottom: 28px;
+        }
+
+        .hero i {
+            font-size: 42px;
+            margin-bottom: 14px;
+            color: #ffd54a;
+        }
+
+        .hero h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .hero p {
+            max-width: 760px;
+            margin: 0 auto;
+            font-size: 1rem;
+            line-height: 1.7;
+        }
+
+        .benefits {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 18px;
+            margin-bottom: 28px;
+        }
+
+        .benefit-card {
+            background: var(--white);
+            border-radius: 14px;
+            padding: 22px;
+            box-shadow: 0 4px 12px rgba(0, 74, 143, 0.10);
+            text-align: center;
+            transition: 0.3s ease;
+        }
+
+        .benefit-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 8px 18px rgba(0, 74, 143, 0.16);
+        }
+
+        .benefit-card i {
+            font-size: 30px;
+            color: var(--primary);
+            margin-bottom: 12px;
+        }
+
+        .benefit-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            color: var(--text-dark);
+        }
+
+        .benefit-card p {
+            font-size: 0.94rem;
+            color: var(--text-light);
+            line-height: 1.5;
+        }
+
+        .form-wrapper {
+            background: var(--white);
+            border-radius: 16px;
+            box-shadow: 0 8px 22px rgba(0, 74, 143, 0.10);
+            padding: 35px 28px;
+        }
+
+        .form-wrapper h2 {
+            text-align: center;
+            color: var(--primary);
+            margin-bottom: 28px;
+            font-size: 1.8rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 26px 30px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group.full {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #234;
+        }
+
+        input,
+        select,
+        textarea {
+            padding: 12px 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            background: #fafafa;
+            outline: none;
+            transition: 0.25s ease;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: var(--primary);
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(35, 107, 189, 0.10);
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .info-box {
+            background: #f6fbff;
+            border-left: 4px solid var(--primary);
+            padding: 16px 18px;
+            border-radius: 10px;
+            margin: 24px 0 8px;
+            color: #234;
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        .locker-plans {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin: 18px 0 28px;
+        }
+
+        .plan {
+            background: #f9fcff;
+            border: 1px solid #d8e6f5;
+            border-radius: 12px;
+            padding: 18px;
+            text-align: center;
+        }
+
+        .plan h4 {
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+
+        .plan p {
+            color: #555;
+            font-size: 0.92rem;
+            line-height: 1.5;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-top: 8px;
+            font-size: 14px;
+            color: #444;
+            line-height: 1.5;
+        }
+
+        .checkbox-group input {
+            margin-top: 3px;
+        }
+
+        .btn-wrap {
+            text-align: center;
+            margin-top: 28px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 14px 28px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s ease;
+            box-shadow: 0 6px 14px rgba(0, 74, 143, 0.18);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px rgba(0, 74, 143, 0.25);
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 32px;
+            color: #666;
+            font-size: 0.92rem;
+        }
+
+        @media (max-width: 900px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-group.full {
+                grid-column: auto;
+            }
+
+            .form-wrapper {
+                padding: 25px 18px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .hero {
+                padding: 28px 18px;
+            }
+
+            .hero h1 {
+                font-size: 1.6rem;
+            }
+
+            .form-wrapper h2 {
+                font-size: 1.45rem;
+            }
+
+            input,
+            select,
+            textarea {
+                font-size: 16px;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <section class="hero">
+            <i class="fa-solid fa-vault"></i>
+            <h1>CRB Locker Facility</h1>
+            <p>Protect your jewellery, important documents, family valuables, and confidential items with CapitalRise
+                Bank’s safe and secure locker facility available across selected branches.</p>
+        </section>
+
+        <section class="benefits">
+            <div class="benefit-card">
+                <i class="fa-solid fa-shield-halved"></i>
+                <h3>Advanced Security</h3>
+                <p>Your valuables stay protected with strong vault systems and controlled branch access.</p>
+            </div>
+
+            <div class="benefit-card">
+                <i class="fa-solid fa-key"></i>
+                <h3>Dual Key Access</h3>
+                <p>Each locker is secured through dual-control access for added safety and privacy.</p>
+            </div>
+
+            <div class="benefit-card">
+                <i class="fa-solid fa-building-columns"></i>
+                <h3>Trusted Branch Network</h3>
+                <p>Locker facilities are available at major CRB branches with reliable customer support.</p>
+            </div>
+
+            <div class="benefit-card">
+                <i class="fa-solid fa-user-shield"></i>
+                <h3>Nominee Facility</h3>
+                <p>Add nominee details for secure future claim and smooth access in emergencies.</p>
+            </div>
+        </section>
+
+        <section class="form-wrapper">
+            <h2>Apply for Locker Facility</h2>
+
+            <div class="locker-plans">
+                <div class="plan">
+                    <h4>Small Locker</h4>
+                    <p>Best for jewellery, certificates, and compact valuables.</p>
+                </div>
+                <div class="plan">
+                    <h4>Medium Locker</h4>
+                    <p>Suitable for family documents, ornaments, and investment papers.</p>
+                </div>
+                <div class="plan">
+                    <h4>Large Locker</h4>
+                    <p>Ideal for bulky valuables, legal files, and important assets.</p>
+                </div>
+            </div>
+
+            <form id="lockerForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="fullName">Full Name</label>
+                        <input type="text" id="fullName" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="accountNumber">Account Number</label>
+                        <input type="text" id="accountNumber" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="mobile">Mobile Number</label>
+                        <input type="tel" id="mobile" pattern="[0-9]{10}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="branch">Preferred Branch</label>
+                        <select id="branch" required>
+                            <option value="">-- Select Branch --</option>
+                            <option>Mumbai - Fort</option>
+                            <option>Pune - Camp</option>
+                            <option>Nashik - College Road</option>
+                            <option>Delhi - Connaught Place</option>
+                            <option>Bengaluru - MG Road</option>
+                            <option>Chennai - T Nagar</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="lockerType">Locker Size</label>
+                        <select id="lockerType" required>
+                            <option value="">-- Select Locker Size --</option>
+                            <option>Small Locker</option>
+                            <option>Medium Locker</option>
+                            <option>Large Locker</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="tenure">Locker Tenure</label>
+                        <select id="tenure" required>
+                            <option value="">-- Select Tenure --</option>
+                            <option>1 Year</option>
+                            <option>2 Years</option>
+                            <option>3 Years</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="nominee">Nominee Name</label>
+                        <input type="text" id="nominee" required>
+                    </div>
+
+                    <div class="form-group full">
+                        <label for="address">Residential Address</label>
+                        <textarea id="address" required></textarea>
+                    </div>
+
+                    <div class="form-group full">
+                        <label for="items">Type of Valuables to Store</label>
+                        <textarea id="items"
+                            placeholder="Example: Jewellery, property papers, certificates, legal documents"></textarea>
+                    </div>
+
+                    <div class="form-group full">
+                        <div class="info-box">
+                            Locker allotment is subject to availability at the selected branch. Annual rent, refundable
+                            deposit, and KYC verification may apply before final approval.
+                        </div>
+                    </div>
+
+                    <div class="form-group full">
+                        <label class="checkbox-group">
+                            <input type="checkbox" id="agree" required>
+                            <span>I confirm that the above information is correct and I agree to CapitalRise Bank locker
+                                facility terms and verification process.</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="btn-wrap">
+                    <button type="submit" class="btn">Submit Locker Request</button>
+                </div>
+            </form>
+        </section>
+
+        <footer>© 2025 CapitalRise Bank (CRB) — All Rights Reserved.</footer>
+    </div>
+
+    <script>
+        document.getElementById("lockerForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+            alert("Your locker facility request has been submitted successfully.");
+            window.location.href = "userpage.html";
+        });
+    </script>
+</body>
+
+</html>

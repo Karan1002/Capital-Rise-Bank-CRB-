@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRB LITE - Digital Banking</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --primary-dark: #1d4ed8;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #06b6d4;
+            --bg-primary: #f8fafc;
+            --bg-secondary: #ffffff;
+            --bg-soft: #eff6ff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border: #e2e8f0;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --radius: 14px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .header {
+            position: sticky;
+            top: 0;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            z-index: 100;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .logo-text h3 {
+            color: var(--primary);
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .logo-text small {
+            color: var(--text-secondary);
+            font-size: 12px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-outline {
+            background: white;
+            color: var(--primary);
+            border: 1px solid var(--border);
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            min-height: calc(100vh - 70px);
+            gap: 24px;
+            padding: 24px;
+        }
+
+        .sidebar {
+            background: var(--bg-secondary);
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: var(--shadow-lg);
+            height: fit-content;
+        }
+
+        .user-info {
+            text-align: center;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 24px;
+        }
+
+        .user-avatar {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 20px;
+            margin: 0 auto 12px;
+        }
+
+        .balance {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 8px 0;
+        }
+
+        .account-info {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .nav {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            text-decoration: none;
+            border-radius: 10px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: linear-gradient(135deg, #eff6ff, #dbeafe);
+            color: var(--primary);
+        }
+
+        main {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .card {
+            background: var(--bg-secondary);
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border);
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .hero-panel {
+            background: linear-gradient(135deg, var(--primary), #2563eb);
+            color: white;
+            padding: 28px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .hero-panel h2 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .hero-panel p {
+            opacity: 0.92;
+            margin-bottom: 18px;
+        }
+
+        .hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .hero-actions .btn,
+        .hero-actions .btn-outline {
+            min-width: 150px;
+        }
+
+        .hero-actions .btn-outline {
+            border-color: rgba(255,255,255,0.25);
+            color: white;
+            background: rgba(255,255,255,0.08);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 10px;
+        }
+
+        .stat-value {
+            font-size: 30px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+            gap: 14px;
+        }
+
+        .quick-btn {
+            background: linear-gradient(135deg, #eff6ff, #dbeafe);
+            border: 1px solid var(--border);
+            padding: 16px;
+            border-radius: 12px;
+            font-weight: 600;
+            color: var(--primary);
+            cursor: pointer;
+            transition: 0.25s ease;
+            text-align: left;
+        }
+
+        .quick-btn i {
+            margin-right: 8px;
+        }
+
+        .quick-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .form-input,
+        select.form-input,
+        textarea.form-input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 16px;
+            background: #fafbfc;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .form-input:focus,
+        select.form-input:focus,
+        textarea.form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: white;
+        }
+
+        .btn-full {
+            width: 100%;
+            padding: 14px;
+            font-size: 16px;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            margin-top: 16px;
+        }
+
+        .table th {
+            text-align: left;
+            padding: 16px 12px;
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .table td {
+            padding: 16px 12px;
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+        }
+
+        .amount-negative {
+            color: var(--danger);
+            font-weight: 600;
+        }
+
+        .amount-positive {
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-success {
+            background: #ecfdf5;
+            color: #047857;
+        }
+
+        .badge-warning {
+            background: #fffbeb;
+            color: #b45309;
+        }
+
+        .badge-info {
+            background: #ecfeff;
+            color: #0e7490;
+        }
+
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--primary), #3b82f6);
+            padding: 20px;
+        }
+
+        .auth-card {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 430px;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .auth-title {
+            text-align: center;
+            color: var(--primary);
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .auth-subtitle {
+            text-align: center;
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+        }
+
+        .toast-container {
+            position: fixed;
+            top: 84px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast {
+            min-width: 280px;
+            max-width: 360px;
+            background: white;
+            border-left: 5px solid var(--primary);
+            border-radius: 12px;
+            box-shadow: var(--shadow-lg);
+            padding: 14px 16px;
+            animation: slideIn 0.25s ease;
+        }
+
+        .toast.success { border-left-color: var(--success); }
+        .toast.error { border-left-color: var(--danger); }
+        .toast.warning { border-left-color: var(--warning); }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @media (max-width: 1024px) {
+            .layout {
+                grid-template-columns: 1fr;
+                padding: 16px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 0 16px;
+                height: auto;
+                min-height: 70px;
+                flex-wrap: wrap;
+                gap: 10px;
+                padding-top: 12px;
+                padding-bottom: 12px;
+            }
+
+            .header-actions {
+                width: 100%;
+                justify-content: flex-end;
+            }
+
+            .auth-card {
+                padding: 26px 20px;
+            }
+
+            .hero-panel h2 {
+                font-size: 22px;
+            }
+
+            .card {
+                padding: 18px;
+            }
+
+            .quick-actions,
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .toast-container {
+                right: 10px;
+                left: 10px;
+            }
+
+            .toast {
+                min-width: auto;
+                max-width: none;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="toast-container" id="toastContainer"></div>
+
+    <header class="header hidden" id="header">
+        <a href="#/dashboard" class="logo">
+            <div class="logo-icon">CR</div>
+            <div class="logo-text">
+                <h3>CRB LITE</h3>
+                <small>Digital Banking</small>
+            </div>
+        </a>
+
+        <div class="header-actions">
+            <button class="btn btn-outline" onclick="location.hash='#/dashboard'">
+                <i class="fas fa-house"></i> Return Home
+            </button>
+            <button class="btn" id="logoutBtn">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </div>
+    </header>
+
+    <div class="layout hidden" id="mainLayout">
+        <aside class="sidebar">
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">CR</div>
+                <div class="balance" id="totalBalance">₹0</div>
+                <div class="account-info">
+                    <div id="greet">Hello, Guest</div>
+                    <div id="memberSince">Not logged in</div>
+                </div>
+            </div>
+
+            <nav class="nav" id="navlinks">
+                <a href="#/dashboard" data-route="dashboard" class="nav-link active">
+                    <i class="fas fa-home"></i> Dashboard
+                </a>
+                <a href="#/transfer" data-route="transfer" class="nav-link">
+                    <i class="fas fa-paper-plane"></i> Fund Transfer
+                </a>
+                <a href="#/fd" data-route="fd" class="nav-link">
+                    <i class="fas fa-piggy-bank"></i> Fixed Deposits
+                </a>
+                <a href="#/bills" data-route="bills" class="nav-link">
+                    <i class="fas fa-file-invoice-dollar"></i> Bill Payments
+                </a>
+                <a href="#/recharge" data-route="recharge" class="nav-link">
+                    <i class="fas fa-mobile-screen-button"></i> Recharge
+                </a>
+                <a href="#/cards" data-route="cards" class="nav-link">
+                    <i class="fas fa-credit-card"></i> Card Controls
+                </a>
+                <a href="#/transactions" data-route="transactions" class="nav-link">
+                    <i class="fas fa-list"></i> Transactions
+                </a>
+            </nav>
+        </aside>
+
+        <main id="view"></main>
+    </div>
+
+    <div id="authPage" class="auth-container">
+        <div class="auth-card">
+            <h1 class="auth-title">Welcome to CRB LITE</h1>
+            <p class="auth-subtitle">Access your banking services securely</p>
+
+            <div class="form-group">
+                <label class="form-label">Full Name</label>
+                <input id="authName" class="form-input" placeholder="Enter your full name">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Email</label>
+                <input id="authEmail" type="email" class="form-input" placeholder="your@email.com">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Mobile Number</label>
+                <input id="authPhone" class="form-input" placeholder="99999 99999">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Account Number</label>
+                <input id="authAcc" class="form-input" placeholder="123456789012">
+            </div>
+
+            <button class="btn btn-full" id="registerBtn">
+                <i class="fas fa-lock-open"></i> Login / Register
+            </button>
+
+            <p style="text-align:center;margin-top:20px;color:#64748b;font-size:13px;">
+                Demo data browser me localStorage me save hota hai.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        const STORAGE_KEY = 'crb_lite_bank_v3';
+
+        function getDefaultState() {
+            return {
+                user: null,
+                balance: 50000,
+                txs: [],
+                fds: [],
+                cards: {
+                    blocked: false,
+                    atmLimit: 25000,
+                    onlineLimit: 50000
+                }
+            };
+        }
+
+        function loadState() {
+            try {
+                const data = localStorage.getItem(STORAGE_KEY);
+                return data ? JSON.parse(data) : getDefaultState();
+            } catch {
+                return getDefaultState();
+            }
+        }
+
+        function saveState(state) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        }
+
+        let state = loadState();
+
+        function formatAmount(amount) {
+            return '₹' + Number(amount).toLocaleString('en-IN');
+        }
+
+        function formatDate(dateStr) {
+            return new Date(dateStr).toLocaleDateString('en-IN');
+        }
+
+        function showToast(message, type = 'success') {
+            const box = document.createElement('div');
+            box.className = `toast ${type}`;
+            box.innerHTML = `<strong>${message}</strong>`;
+            document.getElementById('toastContainer').appendChild(box);
+            setTimeout(() => box.remove(), 3000);
+        }
+
+        function addTransaction(title, amount, type, desc = '') {
+            state.txs.unshift({
+                title,
+                amount,
+                type,
+                desc,
+                date: new Date().toISOString()
+            });
+        }
+
+        function updateSidebar() {
+            if (!state.user) return;
+
+            const initials = state.user.name
+                .split(' ')
+                .map(n => n[0])
+                .join('')
+                .slice(0, 2)
+                .toUpperCase();
+
+            document.getElementById('userAvatar').textContent = initials || 'CR';
+            document.getElementById('greet').textContent = `Hello, ${state.user.name}!`;
+            document.getElementById('memberSince').textContent = `A/C: ${state.user.account}`;
+            document.getElementById('totalBalance').textContent = formatAmount(state.balance);
+
+            document.querySelectorAll('#navlinks .nav-link').forEach(link => link.classList.remove('active'));
+            const route = location.hash.replace('#/', '') || 'dashboard';
+            const activeLink = document.querySelector(`[data-route="${route}"]`);
+            if (activeLink) activeLink.classList.add('active');
+        }
+
+        function renderDashboard() {
+            const recentTxs = state.txs.slice(0, 5);
+            const totalFDs = state.fds.reduce((sum, fd) => sum + fd.amount, 0);
+
+            document.getElementById('view').innerHTML = `
+                <section class="hero-panel">
+                    <h2>Welcome back, ${state.user.name.split(' ')[0]}</h2>
+                    <p>Manage transfers, bills, recharge, cards, and deposits from one place.</p>
+                    <div class="hero-actions">
+                        <button class="btn" onclick="location.hash='#/transfer'"><i class="fas fa-paper-plane"></i> Send Money</button>
+                        <button class="btn btn-outline" onclick="location.hash='#/bills'"><i class="fas fa-file-invoice-dollar"></i> Pay Bills</button>
+                    </div>
+                </section>
+
+                <section class="stats-grid">
+                    <div class="card">
+                        <div class="stat-card">
+                            <div class="stat-value" style="color: var(--primary);">${formatAmount(state.balance)}</div>
+                            <div class="stat-label">Available Balance</div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="stat-card">
+                            <div class="stat-value" style="color: var(--success);">${formatAmount(totalFDs)}</div>
+                            <div class="stat-label">${state.fds.length} Fixed Deposits</div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="stat-card">
+                            <div class="stat-value" style="color: var(--warning);">${state.txs.length}</div>
+                            <div class="stat-label">Total Transactions</div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="card">
+                    <h3 class="card-title"><i class="fas fa-bolt"></i> Quick Actions</h3>
+                    <div class="quick-actions">
+                        <button class="quick-btn" onclick="location.hash='#/transfer'"><i class="fas fa-paper-plane"></i> Send Money</button>
+                        <button class="quick-btn" onclick="location.hash='#/bills'"><i class="fas fa-file-invoice-dollar"></i> Pay Bills</button>
+                        <button class="quick-btn" onclick="location.hash='#/recharge'"><i class="fas fa-mobile-screen-button"></i> Recharge</button>
+                        <button class="quick-btn" onclick="location.hash='#/fd'"><i class="fas fa-piggy-bank"></i> Create FD</button>
+                        <button class="quick-btn" onclick="location.hash='#/cards'"><i class="fas fa-credit-card"></i> Card Controls</button>
+                        <button class="quick-btn" onclick="location.hash='#/transactions'"><i class="fas fa-clock-rotate-left"></i> View History</button>
+                    </div>
+                </section>
+
+                <section class="card">
+                    <h3 class="card-title"><i class="fas fa-clock"></i> Recent Transactions</h3>
+                    ${recentTxs.length ? `
+                        <div class="table-wrap">
+                            <table class="table">
+                                <tr><th>Date</th><th>Description</th><th>Note</th><th>Amount</th></tr>
+                                ${recentTxs.map(tx => `
+                                    <tr>
+                                        <td>${formatDate(tx.date)}</td>
+                                        <td>${tx.title}</td>
+                                        <td>${tx.desc || '-'}</td>
+                                        <td class="${tx.type === 'debit' ? 'amount-negative' : 'amount-positive'}">
+                                            ${tx.type === 'debit' ? '-' : '+'}${formatAmount(tx.amount)}
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </table>
+                        </div>
+                    ` : '<p style="text-align:center;padding:30px;color:var(--text-secondary);">No transactions yet</p>'}
+                </section>
+            `;
+        }
+
+        function renderTransfer() {
+            document.getElementById('view').innerHTML = `
+                <div class="card">
+                    <h3 class="card-title"><i class="fas fa-paper-plane"></i> Fund Transfer</h3>
+                    <div class="form-group">
+                        <label class="form-label">To (UPI ID / Account)</label>
+                        <input id="toAcc" class="form-input" placeholder="user@upi or 123456789012">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Amount</label>
+                        <input id="amount" type="number" class="form-input" placeholder="1000">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Note</label>
+                        <input id="note" class="form-input" placeholder="Payment for...">
+                    </div>
+                    <button class="btn btn-full" id="sendBtn">Send Money</button>
+                    <div style="text-align:center;margin-top:16px;color:var(--text-secondary);">
+                        Available: <strong>${formatAmount(state.balance)}</strong>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('sendBtn').onclick = function () {
+                const to = document.getElementById('toAcc').value.trim();
+                const amt = parseFloat(document.getElementById('amount').value);
+                const note = document.getElementById('note').value.trim() || 'Transfer';
+
+                if (!to || !amt || amt <= 0) {
+                    showToast('Please enter valid transfer details', 'error');
+                    return;
+                }
+                if (amt > state.balance) {
+                    showToast('Insufficient balance', 'error');
+                    return;
+                }
+
+                state.balance -= amt;
+                addTransaction(`Transfer to ${to}`, amt, 'debit', note);
+                saveState(state);
+                updateSidebar();
+                showToast('Transfer successful', 'success');
+                renderTransfer();
+            };
+        }
+
+        function renderFD() {
+            document.getElementById('view').innerHTML = `
+                <div class="card">
+                    <h3 class="card-title"><i class="fas fa-piggy-bank"></i> Create Fixed Deposit</h3>
+                    <div class="form-group">
+                        <label class="form-label">Amount (Min ₹10,000)</label>
+                        <input id="fdAmount" type="number" class="form-input" placeholder="25000">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Tenure</label>
+                        <select id="fdTerm" class="form-input">
+                            <option value="30">30 days - 4.0%</option>
+                            <option value="90">90 days - 4.5%</option>
+                            <option value="180">180 days - 5.25%</option>
+                            <option value="365">365 days - 6.0%</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-full" id="createFdBtn">Create FD</button>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title"><i class="fas fa-list"></i> Your Fixed Deposits</h3>
+                    <div id="fdList"></div>
+                </div>
+            `;
+
+            function refreshFDList() {
+                const list = document.getElementById('fdList');
+                if (!state.fds.length) {
+                    list.innerHTML = '<p style="text-align:center;padding:30px;color:var(--text-secondary);">No FDs created</p>';
+                    return;
+                }
+
+                list.innerHTML = `
+                    <div class="table-wrap">
+                        <table class="table">
+                            <tr><th>Date</th><th>Amount</th><th>Term</th><th>Rate</th><th>Status</th></tr>
+                            ${state.fds.map(fd => `
+                                <tr>
+                                    <td>${formatDate(fd.start)}</td>
+                                    <td>${formatAmount(fd.amount)}</td>
+                                    <td>${fd.term} days</td>
+                                    <td style="color:var(--success);">${fd.rate}%</td>
+                                    <td><span class="badge badge-success">Active</span></td>
+                                </tr>
+                            `).join('')}
+                        </table>
+                    </div>
+                `;
+            }
+
+            refreshFDList();
+
+            document.getElementById('createFdBtn').onclick = function () {
+                const amt = parseFloat(document.getElementById('fdAmount').value);
+                const term = parseInt(document.getElementById('fdTerm').value);
+
+                if (!amt || amt < 10000) {
+                    showToast('Minimum ₹10,000 required', 'warning');
+                    return;
+                }
+                if (amt > state.balance) {
+                    showToast('Insufficient balance', 'error');
+                    return;
+                }
+
+                const rates = { 30: 4.0, 90: 4.5, 180: 5.25, 365: 6.0 };
+                state.balance -= amt;
+                state.fds.push({
+                    amount: amt,
+                    term,
+                    rate: rates[term],
+                    start: new Date().toISOString()
+                });
+                addTransaction('FD Created', amt, 'debit', `${term} days`);
+                saveState(state);
+                updateSidebar();
+                refreshFDList();
+                showToast('FD created successfully', 'success');
+                document.getElementById('fdAmount').value = '';
+            };
+        }
+
+        function renderBills() {
+            document.getElementById('view').innerHTML = `
+                <div class="card">
+                    <h3 class="card-title"><i class="fas fa-file-invoice-dollar"></i> Bill Payments</h3>
+                    <div class="form-group">
+                        <label class="form-label">Bill Type</label>
+                        <select id="billType" class="form-input">
+                            <option>Electricity</option>
+                            <option>Water</option>
+                            <option>Broadband</option>
+                            <option>Gas</option>
+                            <option>Credit Card Bill</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Consumer / Account Number</label>
+                        <input id="billAcc" class="form-input" placeholder="Enter consumer number">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Amount</label>
+                        <input id="billAmount" type="number" class="form-input" placeholder="1000">
+                    </div>
+                    <button class="btn btn-full" id="payBillBtn">Pay Bill</button>
+                </div>
+            `;
+
+            document.getElementById('payBillBtn').onclick = function () {
+                const type = document.getElementById('billType').value;
+                const acc = document.getElementById('billAcc').value.trim();
+                const amount = parseFloat(document.getElementById('billAmount').value);
+
+                if (!acc || !amount || amount <= 0) {
+                    showToast('Please fill all bill details correctly', 'error');
+                    return;
+                }
+                if (amount > state.balance) {
+                    showToast('Insufficient balance', 'error');
+                    return;
+                }
+
+                state.balance -= amount;
+                addTransaction(`${type} Bill Paid`, amount, 'debit', acc);
+                saveState(state);
+                updateSidebar();
+                showToast(`${type} bill paid successfully`, 'success');
+                renderBills();
+            };
+        }
+
+        function renderRecharge() {
+            document.getElementById('view').innerHTML = `
+                <div class="card">
+                    <h3 class="card-title"><i class="fas fa-mobile-screen-button"></i> Mobile / DTH Recharge</h3>
+                    <div class="form-group">
+                        <label class="form-label">Recharge Type</label>
+                        <select id="rechargeType" class="form-input">
+                            <option>Mobile Prepaid</option>
+                            <option>DTH</option>
+                            <option>Data Card</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Mobile / Consumer Number</label>
+                        <input id="rechargeNumber" class="form-input" placeholder="Enter number">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Amount</label>
+                        <input id="rechargeAmount" type="number" class="form-input" placeholder="239">
+                    </div>
+                    <button class="btn btn-full" id="rechargeBtn">Recharge Now</button>
+                </div>
+            `;
+
+            document.getElementById('rechargeBtn').onclick = function () {
+                const type = document.getElementById('rechargeType').value;
+                const num = document.getElementById('rechargeNumber').value.trim();
+                const amount = parseFloat(document.getElementById('rechargeAmount').value);
+
+                if (!num || !amount || amount <= 0) {
+                    showToast('Please fill all recharge details correctly', 'error');
+                    return;
+                }
+                if (amount > state.balance) {
+                    showToast('Insufficient balance', 'error');
+                    return;
+                }
+
+                state.balance -= amount;
+                addTransaction(`${type} Recharge`, amount, 'debit', num);
+                saveState(state);
+                updateSidebar();
+                showToast('Recharge successful', 'success');
+                renderRecharge();
+            };
+        }
+
+        function renderCards() {
+            document.getElementById('view').innerHTML = `
+                <div class="card">
+                    <h3 class="card-title"><i class="fas fa-credit-card"></i> Card Controls</h3>
+                    <div class="stats-grid">
+                        <div class="card" style="padding:18px;">
+                            <div class="stat-card">
+                                <div class="stat-value" style="font-size:22px;color:${state.cards.blocked ? 'var(--danger)' : 'var(--success)'};">
+                                    ${state.cards.blocked ? 'Blocked' : 'Active'}
+                                </div>
+                                <div class="stat-label">Card Status</div>
+                            </div>
+                        </div>
+                        <div class="card" style="padding:18px;">
+                            <div class="stat-card">
+                                <div class="stat-value" style="font-size:22px;color:var(--primary);">${formatAmount(state.cards.atmLimit)}</div>
+                                <div class="stat-label">ATM Limit</div>
+                            </div>
+                        </div>
+                        <div class="card" style="padding:18px;">
+                            <div class="stat-card">
+                                <div class="stat-value" style="font-size:22px;color:var(--info);">${formatAmount(state.cards.onlineLimit)}</div>
+                                <div class="stat-label">Online Limit</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top:20px;" class="quick-actions">
+                        <button class="quick-btn" id="toggleCardBtn">
+                            <i class="fas fa-lock"></i> ${state.cards.blocked ? 'Unblock Card' : 'Block Card'}
+                        </button>
+                    </div>
+
+                    <div style="margin-top:20px;">
+                        <div class="form-group">
+                            <label class="form-label">Set ATM Limit</label>
+                            <input id="atmLimit" type="number" class="form-input" value="${state.cards.atmLimit}">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Set Online Purchase Limit</label>
+                            <input id="onlineLimit" type="number" class="form-input" value="${state.cards.onlineLimit}">
+                        </div>
+                        <button class="btn btn-full" id="saveCardSettings">Save Card Settings</button>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('toggleCardBtn').onclick = function () {
+                state.cards.blocked = !state.cards.blocked;
+                saveState(state);
+                showToast(`Card ${state.cards.blocked ? 'blocked' : 'unblocked'} successfully`, 'success');
+                renderCards();
+            };
+
+            document.getElementById('saveCardSettings').onclick = function () {
+                const atm = parseFloat(document.getElementById('atmLimit').value);
+                const online = parseFloat(document.getElementById('onlineLimit').value);
+
+                if (atm < 0 || online < 0 || isNaN(atm) || isNaN(online)) {
+                    showToast('Please enter valid limits', 'error');
+                    return;
+                }
+
+                state.cards.atmLimit = atm;
+                state.cards.onlineLimit = online;
+                saveState(state);
+                showToast('Card settings updated', 'success');
+                renderCards();
+            };
+        }
+
+        function renderTransactions() {
+            document.getElementById('view').innerHTML = `
+                <div class="card">
+                    <h3 class="card-title"><i class="fas fa-history"></i> Transaction History</h3>
+                    ${state.txs.length ? `
+                        <div class="table-wrap">
+                            <table class="table">
+                                <tr><th>Date</th><th>Title</th><th>Note</th><th>Amount</th><th>Type</th></tr>
+                                ${state.txs.map(tx => `
+                                    <tr>
+                                        <td>${formatDate(tx.date)}</td>
+                                        <td>${tx.title}</td>
+                                        <td>${tx.desc || '-'}</td>
+                                        <td class="${tx.type === 'debit' ? 'amount-negative' : 'amount-positive'}">
+                                            ${tx.type === 'debit' ? '-' : '+'}${formatAmount(tx.amount)}
+                                        </td>
+                                        <td>
+                                            <span class="badge ${tx.type === 'debit' ? 'badge-warning' : 'badge-success'}">
+                                                ${tx.type}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </table>
+                        </div>
+                    ` : '<p style="text-align:center;padding:50px;color:var(--text-secondary);">No transactions</p>'}
+                </div>
+            `;
+        }
+
+        function router() {
+            const route = location.hash.replace('#/', '') || 'dashboard';
+            updateSidebar();
+
+            if (route === 'dashboard') renderDashboard();
+            else if (route === 'transfer') renderTransfer();
+            else if (route === 'fd') renderFD();
+            else if (route === 'bills') renderBills();
+            else if (route === 'recharge') renderRecharge();
+            else if (route === 'cards') renderCards();
+            else if (route === 'transactions') renderTransactions();
+            else renderDashboard();
+        }
+
+        function showMain() {
+            document.getElementById('authPage').classList.add('hidden');
+            document.getElementById('mainLayout').classList.remove('hidden');
+            document.getElementById('header').classList.remove('hidden');
+            if (!location.hash) location.hash = '#/dashboard';
+            router();
+        }
+
+        document.getElementById('registerBtn').onclick = function () {
+            const name = document.getElementById('authName').value.trim();
+            const email = document.getElementById('authEmail').value.trim();
+            const phone = document.getElementById('authPhone').value.trim();
+            const acc = document.getElementById('authAcc').value.trim();
+
+            if (!name || !email || !phone || !acc) {
+                showToast('Please fill all fields', 'error');
+                return;
+            }
+
+            state.user = { name, email, phone, account: acc };
+            saveState(state);
+            showToast('Login successful', 'success');
+            showMain();
+        };
+
+        document.getElementById('logoutBtn').onclick = function () {
+            state.user = null;
+            saveState(state);
+            location.reload();
+        };
+
+        window.addEventListener('hashchange', router);
+
+        if (state.user) {
+            showMain();
+        }
+    </script>
+</body>
+</html>

@@ -161,7 +161,7 @@
                 // 🔥 Header
                 pdf.setFontSize(18);
                 pdf.setFont(undefined, 'bold');
-                pdf.text(`LNDB Savings Account Application`, 105, 20, { align: 'center' });
+                pdf.text(`CRB Savings Account Application`, 105, 20, { align: 'center' });
 
                 pdf.setFontSize(14);
                 pdf.text(`Reference: ${ref}`, 105, 30, { align: 'center' });
@@ -210,9 +210,9 @@
 
                 // Footer
                 pdf.setFontSize(10);
-                pdf.text('LNDB Bank - Secure Banking Services', 105, 280, { align: 'center' });
+                pdf.text('CRB Bank - Secure Banking Services', 105, 280, { align: 'center' });
 
-                pdf.save(`LNDB_Savings_Account_${ref}.pdf`);
+                pdf.save(`CRB_Savings_Account_${ref}.pdf`);
             }
 
             const pdfBtn = document.getElementById("pdfBtn");

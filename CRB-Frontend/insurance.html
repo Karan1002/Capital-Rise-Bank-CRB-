@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CRB Insurance Services</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary: #236bbd;
+            --primary-dark: #174f85;
+            --secondary: #0f2f57;
+            --bg-light: #f5f8fc;
+            --white: #ffffff;
+            --text: #333;
+            --border: #d8dee6;
+            --accent: #ffd54f;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #eaf3ff, #ffffff);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        header {
+            background: linear-gradient(90deg, var(--primary-dark), var(--primary));
+            color: white;
+            padding: 18px 24px;
+            text-align: center;
+            box-shadow: 0 4px 16px rgba(0, 74, 143, 0.25);
+        }
+
+        header h1 {
+            font-size: 2rem;
+            margin-bottom: 6px;
+        }
+
+        header p {
+            font-size: 1rem;
+            opacity: 0.95;
+        }
+
+        .hero {
+            max-width: 1200px;
+            margin: 28px auto;
+            padding: 40px 30px;
+            background: linear-gradient(rgba(0, 58, 112, 0.72), rgba(0, 58, 112, 0.72)),
+                url("https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=1400&q=80") center/cover no-repeat;
+            border-radius: 18px;
+            color: white;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0, 74, 143, 0.15);
+        }
+
+        .hero h2 {
+            font-size: 2.3rem;
+            margin-bottom: 12px;
+        }
+
+        .hero p {
+            max-width: 800px;
+            margin: 0 auto 20px;
+            font-size: 1.05rem;
+        }
+
+        .hero .btn {
+            background: var(--accent);
+            color: #003366;
+            padding: 12px 22px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s ease;
+            margin: 8px;
+        }
+
+        .hero .btn:hover {
+            background: #ffca28;
+            transform: translateY(-2px);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            padding: 20px;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2rem;
+            color: var(--primary-dark);
+            margin-bottom: 30px;
+        }
+
+        .insurance-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 24px;
+            margin-bottom: 50px;
+        }
+
+        .card {
+            background: var(--white);
+            border-radius: 14px;
+            padding: 24px 20px;
+            box-shadow: 0 6px 18px rgba(0, 74, 143, 0.10);
+            transition: 0.3s ease;
+            border: 1px solid #edf2f7;
+        }
+
+        .card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 10px 22px rgba(0, 74, 143, 0.16);
+        }
+
+        .card i {
+            font-size: 34px;
+            color: var(--primary);
+            margin-bottom: 14px;
+        }
+
+        .card h3 {
+            color: var(--secondary);
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .card p {
+            font-size: 0.96rem;
+            color: #555;
+        }
+
+        .benefits {
+            background: var(--white);
+            padding: 35px 25px;
+            border-radius: 16px;
+            box-shadow: 0 6px 18px rgba(0, 74, 143, 0.08);
+            margin-bottom: 50px;
+        }
+
+        .benefits ul {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 14px;
+            list-style: none;
+            margin-top: 20px;
+        }
+
+        .benefits li {
+            background: #f7fbff;
+            padding: 14px 16px;
+            border-radius: 10px;
+            border-left: 4px solid var(--primary);
+            font-weight: 500;
+        }
+
+        .plans {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 50px;
+        }
+
+        .plan-card {
+            background: white;
+            padding: 26px;
+            border-radius: 16px;
+            box-shadow: 0 8px 20px rgba(0, 74, 143, 0.08);
+            text-align: center;
+            border-top: 5px solid var(--primary);
+        }
+
+        .plan-card h3 {
+            color: var(--primary-dark);
+            margin-bottom: 10px;
+        }
+
+        .plan-card .price {
+            font-size: 1.8rem;
+            color: var(--primary);
+            font-weight: 700;
+            margin-bottom: 14px;
+        }
+
+        .plan-card ul {
+            list-style: none;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .plan-card ul li {
+            margin-bottom: 10px;
+            color: #555;
+        }
+
+        .plan-card button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 18px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: 0.3s ease;
+        }
+
+        .plan-card button:hover {
+            background: var(--primary-dark);
+        }
+
+        .faq {
+            background: white;
+            padding: 35px 25px;
+            border-radius: 16px;
+            box-shadow: 0 8px 20px rgba(0, 74, 143, 0.08);
+            margin-bottom: 40px;
+        }
+
+        .faq-item {
+            border-bottom: 1px solid #e5eaf1;
+            padding: 15px 0;
+        }
+
+        .faq-item h4 {
+            color: var(--secondary);
+            margin-bottom: 8px;
+        }
+
+        .faq-item p {
+            color: #555;
+            font-size: 0.96rem;
+        }
+
+        .apply-box {
+            background: white;
+            padding: 35px 25px;
+            border-radius: 16px;
+            box-shadow: 0 8px 20px rgba(0, 74, 143, 0.08);
+            margin-bottom: 40px;
+        }
+
+        .apply-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 18px;
+            margin-top: 20px;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .field label {
+            font-weight: 600;
+            margin-bottom: 7px;
+            color: var(--secondary);
+        }
+
+        .field input,
+        .field select,
+        .field textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            outline: none;
+            font-size: 0.98rem;
+            background: #fbfdff;
+        }
+
+        .field input:focus,
+        .field select:focus,
+        .field textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(35, 107, 189, 0.12);
+        }
+
+        .full {
+            grid-column: 1 / -1;
+        }
+
+        .submit-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 14px 22px;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s ease;
+            width: 100%;
+            margin-top: 8px;
+        }
+
+        .submit-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        .cta {
+            text-align: center;
+            background: linear-gradient(90deg, var(--primary-dark), var(--primary));
+            color: white;
+            padding: 40px 20px;
+            border-radius: 16px;
+            margin-bottom: 40px;
+        }
+
+        .cta h2 {
+            margin-bottom: 12px;
+            font-size: 2rem;
+        }
+
+        .cta p {
+            margin-bottom: 20px;
+        }
+
+        .cta a {
+            display: inline-block;
+            background: var(--accent);
+            color: #003366;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .cta a:hover {
+            background: #ffca28;
+        }
+
+        footer {
+            text-align: center;
+            padding: 16px;
+            background: #003366;
+            color: white;
+            font-size: 0.95rem;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.6rem;
+            }
+
+            .hero {
+                padding: 30px 18px;
+            }
+
+            .hero h2 {
+                font-size: 1.7rem;
+            }
+
+            .section-title {
+                font-size: 1.6rem;
+            }
+
+            .cta h2 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>CapitalRise Bank Insurance</h1>
+        <p>Protect your future with trusted insurance plans from CRB.</p>
+    </header>
+
+    <section class="hero">
+        <h2>Insurance Plans for Every Stage of Life</h2>
+        <p>Choose comprehensive insurance coverage for health, life, vehicles, travel, and property with simple claim support and flexible premium options.</p>
+        <button class="btn" onclick="document.getElementById('applySection').scrollIntoView({behavior:'smooth'})">Apply Now</button>
+        <button class="btn" onclick="document.getElementById('plansSection').scrollIntoView({behavior:'smooth'})">View Plans</button>
+    </section>
+
+    <div class="container">
+        <h2 class="section-title">Insurance Services</h2>
+
+        <div class="insurance-grid">
+            <div class="card">
+                <i class="fa-solid fa-heart-pulse"></i>
+                <h3>Health Insurance</h3>
+                <p>Cashless hospitalization, family coverage, and financial security during medical emergencies.</p>
+            </div>
+
+            <div class="card">
+                <i class="fa-solid fa-user-shield"></i>
+                <h3>Life Insurance</h3>
+                <p>Secure your family's future with term plans, savings-linked insurance, and long-term protection.</p>
+            </div>
+
+            <div class="card">
+                <i class="fa-solid fa-car-side"></i>
+                <h3>Vehicle Insurance</h3>
+                <p>Get protection for your car or bike against accidents, theft, natural disasters, and third-party damages.</p>
+            </div>
+
+            <div class="card">
+                <i class="fa-solid fa-plane-departure"></i>
+                <h3>Travel Insurance</h3>
+                <p>Travel stress-free with coverage for baggage loss, medical issues, trip cancellation, and delays.</p>
+            </div>
+
+            <div class="card">
+                <i class="fa-solid fa-house-chimney"></i>
+                <h3>Home Insurance</h3>
+                <p>Protect your home and valuables from fire, theft, floods, and unexpected damage.</p>
+            </div>
+
+            <div class="card">
+                <i class="fa-solid fa-briefcase-medical"></i>
+                <h3>Business Insurance</h3>
+                <p>Safeguard your office, stock, employees, and liabilities with customizable business plans.</p>
+            </div>
+        </div>
+
+        <section class="benefits">
+            <h2 class="section-title">Why Choose CRB Insurance</h2>
+            <ul>
+                <li>Affordable premium options for every customer.</li>
+                <li>Quick policy approval with simple documentation.</li>
+                <li>Fast and transparent claim assistance.</li>
+                <li>Coverage options for individual and family needs.</li>
+                <li>Flexible tenure and premium payment plans.</li>
+                <li>Trusted customer support from CRB experts.</li>
+            </ul>
+        </section>
+
+        <h2 class="section-title" id="plansSection">Popular Insurance Plans</h2>
+        <div class="plans">
+            <div class="plan-card">
+                <h3>Silver Care Plan</h3>
+                <div class="price">₹499/month</div>
+                <ul>
+                    <li>Health coverage up to ₹3 lakh</li>
+                    <li>Cashless hospital support</li>
+                    <li>Doctor consultation benefits</li>
+                    <li>Basic accidental cover</li>
+                </ul>
+                <button onclick="document.getElementById('applySection').scrollIntoView({behavior:'smooth'})">Choose Plan</button>
+            </div>
+
+            <div class="plan-card">
+                <h3>Gold Family Plan</h3>
+                <div class="price">₹999/month</div>
+                <ul>
+                    <li>Family health cover up to ₹7 lakh</li>
+                    <li>Life cover benefits included</li>
+                    <li>Emergency ambulance support</li>
+                    <li>Priority claims assistance</li>
+                </ul>
+                <button onclick="document.getElementById('applySection').scrollIntoView({behavior:'smooth'})">Choose Plan</button>
+            </div>
+
+            <div class="plan-card">
+                <h3>Premium Secure Plan</h3>
+                <div class="price">₹1499/month</div>
+                <ul>
+                    <li>Comprehensive life and health cover</li>
+                    <li>Travel and accident protection</li>
+                    <li>High claim settlement support</li>
+                    <li>Annual policy review facility</li>
+                </ul>
+                <button onclick="document.getElementById('applySection').scrollIntoView({behavior:'smooth'})">Choose Plan</button>
+            </div>
+        </div>
+
+        <section class="faq">
+            <h2 class="section-title">Frequently Asked Questions</h2>
+
+            <div class="faq-item">
+                <h4>What documents are required for insurance application?</h4>
+                <p>You generally need identity proof, address proof, age proof, passport-size photo, and income proof for selected plans.</p>
+            </div>
+
+            <div class="faq-item">
+                <h4>Can I buy insurance online from CRB?</h4>
+                <p>Yes, you can apply online by filling the insurance application form and submitting the required details.</p>
+            </div>
+
+            <div class="faq-item">
+                <h4>How is premium calculated?</h4>
+                <p>Premium depends on age, policy type, coverage amount, health history, and tenure selected by the customer.</p>
+            </div>
+
+            <div class="faq-item">
+                <h4>Can I insure my family under one plan?</h4>
+                <p>Yes, CRB family insurance plans allow you to include spouse, children, and dependent parents in one policy.</p>
+            </div>
+        </section>
+
+        <section class="apply-box" id="applySection">
+            <h2 class="section-title">Apply for Insurance</h2>
+            <form class="apply-form">
+                <div class="field">
+                    <label>Full Name</label>
+                    <input type="text" placeholder="Enter your full name">
+                </div>
+
+                <div class="field">
+                    <label>Mobile Number</label>
+                    <input type="tel" placeholder="Enter your mobile number">
+                </div>
+
+                <div class="field">
+                    <label>Email Address</label>
+                    <input type="email" placeholder="Enter your email">
+                </div>
+
+                <div class="field">
+                    <label>Insurance Type</label>
+                    <select>
+                        <option>Select Type</option>
+                        <option>Health Insurance</option>
+                        <option>Life Insurance</option>
+                        <option>Vehicle Insurance</option>
+                        <option>Travel Insurance</option>
+                        <option>Home Insurance</option>
+                        <option>Business Insurance</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label>Plan Name</label>
+                    <select>
+                        <option>Select Plan</option>
+                        <option>Silver Care Plan</option>
+                        <option>Gold Family Plan</option>
+                        <option>Premium Secure Plan</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label>Coverage Amount</label>
+                    <input type="number" placeholder="Enter coverage amount">
+                </div>
+
+                <div class="field">
+                    <label>Nominee Name</label>
+                    <input type="text" placeholder="Enter nominee name">
+                </div>
+
+                <div class="field">
+                    <label>Nominee Relation</label>
+                    <input type="text" placeholder="Enter relation">
+                </div>
+
+                <div class="field full">
+                    <label>Address</label>
+                    <textarea rows="3" placeholder="Enter your address"></textarea>
+                </div>
+
+                <div class="field full">
+                    <label>Additional Notes</label>
+                    <textarea rows="3" placeholder="Any special requirement or note"></textarea>
+                </div>
+
+                <div class="field full">
+                    <button type="submit" class="submit-btn">Submit Application</button>
+                </div>
+            </form>
+        </section>
+
+        <section class="cta">
+            <h2>Get Insured with Confidence</h2>
+            <p>Choose CRB insurance plans to protect what matters most and enjoy peace of mind every day.</p>
+            <a href="#applySection">Start Your Insurance Application</a>
+        </section>
+    </div>
+
+    <footer>
+        &copy; 2025 CapitalRise Bank (CRB). All rights reserved.
+    </footer>
+
+</body>
+
+</html>
